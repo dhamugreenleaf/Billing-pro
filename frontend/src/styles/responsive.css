@@ -1,0 +1,54 @@
+/* Mobile First Layout Wrappers */
+
+/* Standard padding for mobile screens */
+.mobile-wrapper {
+  padding: var(--spacing-md);
+  width: 100%;
+}
+
+/* Base Form Group */
+.form-group {
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-main);
+}
+
+/* Tablet and Up */
+@media (min-width: 768px) {
+  .mobile-wrapper {
+    padding: var(--spacing-xl);
+    max-width: 768px;
+    margin: 0 auto;
+  }
+}
+
+/* Flex utilities for headers/actions */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Display utilities */
+.d-none { display: none !important; }
+
+@media (min-width: 576px) {
+  .d-sm-inline { display: inline !important; }
+}
+
+@media (min-width: 768px) {
+  .d-md-none { display: none !important; }
+}

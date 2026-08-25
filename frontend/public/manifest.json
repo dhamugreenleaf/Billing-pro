@@ -1,0 +1,16 @@
+{
+  "name": "Billing Pro",
+  "short_name": "Billing Pro",
+  "description": "Manage your business effortlessly",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <linearGradient id="grad3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7dd3fc" />
+      <stop offset="100%" stop-color="#bae6fd" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="15" stdDeviation="20" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Modern App Squircle Background -->
+  <rect width="512" height="512" rx="115" fill="url(#grad1)" />
+  
+  <g filter="url(#shadow)">
+    <!-- Stylized Document / Invoice base -->
+    <path d="M 160 120 h 130 l 80 80 v 190 a 20 20 0 0 1 -20 20 h -190 a 20 20 0 0 1 -20 -20 v -250 a 20 20 0 0 1 20 -20 z" fill="url(#grad2)" />
+    
+    <!-- Top Right Fold -->
+    <path d="M 290 120 v 60 a 20 20 0 0 0 20 20 h 60 z" fill="url(#grad3)" />
+    
+    <!-- Invoice Content / Lines -->
+    <rect x="200" y="220" width="120" height="24" rx="12" fill="#ffffff" opacity="0.9" />
+    <rect x="200" y="270" width="80" height="24" rx="12" fill="#ffffff" opacity="0.6" />
+    <rect x="200" y="320" width="90" height="24" rx="12" fill="#ffffff" opacity="0.6" />
+    
+    <!-- Price indicator / Action button abstract -->
+    <circle cx="310" cy="332" r="12" fill="#ffffff" opacity="0.9" />
+  </g>
+</svg>
