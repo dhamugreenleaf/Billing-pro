@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutTemplate, CheckCircle2, XCircle, FileText, Eye, Download, X, Filter } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
 
 import AdvancedBillPdf from '../../../template/Advanced_Bill.pdf?url';
@@ -70,9 +71,10 @@ const AdminInvoiceFormats = () => {
     if (template.backendId) {
       try {
         await api.patch(`/subscription/admin/invoice-formats/${template.backendId}/status`, { status: newStatus });
+        toast.success(`Format marked as ${newStatus}`);
       } catch (err) {
         // Revert on failure
-        alert('Failed to update format status');
+        toast.error('Failed to update format status');
         setFormatsState(prev => prev.map(t => t.id === id ? { ...t, status: template.status } : t));
       }
     }

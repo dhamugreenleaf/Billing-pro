@@ -19,13 +19,13 @@ const Settings = () => {
       title: 'TERMS & CONDITIONS',
       description: 'Read the terms and conditions for using Billing Pro.',
       icon: <FileText size={24} />, 
-      path: '#'
+      path: '/settings/terms'
     },
     {
       title: 'PRIVACY POLICY',
       description: 'Read our privacy policy to understand how we protect your data.',
       icon: <Shield size={24} />, 
-      path: '#'
+      path: '/settings/privacy'
     }
   ];
 

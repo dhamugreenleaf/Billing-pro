@@ -9,15 +9,36 @@ const WholesaleInvoice = ({ invoice }) => {
     return new Date(dateString).toLocaleDateString('en-IN');
   };
 
-  const c_name = invoice?.Company?.name || 'Your Company Name';
+  const getStateFromGSTIN = (gstin) => {
+    if (!gstin || gstin.length < 2) return { state: 'Tamil Nadu', code: '33' };
+    const code = gstin.substring(0, 2);
+    const stateMap = {
+      '33': 'Tamil Nadu',
+      '32': 'Kerala',
+      '29': 'Karnataka',
+      '36': 'Telangana',
+      '28': 'Andhra Pradesh',
+      '27': 'Maharashtra',
+      '07': 'Delhi',
+      '09': 'Uttar Pradesh',
+      '24': 'Gujarat',
+      '08': 'Rajasthan',
+      '19': 'West Bengal'
+    };
+    return { state: stateMap[code] || `State (${code})`, code };
+  };
+
+  const c_name = invoice?.Company?.company_name || invoice?.Company?.name || 'Your Company Name';
   const c_addr = invoice?.Company?.address || 'Address Line 1, City, State - PIN';
-  const c_gst = invoice?.Company?.gstin || '';
+  const c_gst = invoice?.Company?.gst_number || invoice?.Company?.gstin || '';
+  const c_stateInfo = getStateFromGSTIN(c_gst);
   const c_phone = invoice?.Company?.phone || '';
   const c_email = invoice?.Company?.email || '';
 
-  const cust_name = invoice?.Customer?.company_name || invoice?.Customer?.person_name || 'Customer Name';
-  const cust_addr = invoice?.Customer?.address || '';
+  const cust_name = invoice?.Customer?.company_name || invoice?.customer_name || 'Customer Name';
+  const cust_addr = invoice?.billing_address || '';
   const cust_gst = invoice?.Customer?.gstin || '';
+  const cust_stateInfo = getStateFromGSTIN(cust_gst);
 
   const items = invoice?.items || [];
 
@@ -31,10 +52,10 @@ const WholesaleInvoice = ({ invoice }) => {
         <tbody>
           <tr>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '10px', verticalAlign: 'top' }}>
-              <div>[{c_name}]</div>
-              <div>[{c_addr}]</div>
-              <div>GSTIN: [{c_gst}] State Code: [22]</div>
-              <div>Phone: [{c_phone}] Email: [{c_email}]</div>
+              <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{c_name}</div>
+              <div style={{ whiteSpace: 'pre-line' }}>{c_addr}</div>
+              {c_gst ? <div>GSTIN: {c_gst} | State Code: {c_stateInfo.code}</div> : <div>State: {c_stateInfo.state} - Code: {c_stateInfo.code}</div>}
+              <div>{c_phone && `Phone: ${c_phone}`} {c_email && `| Email: ${c_email}`}</div>
             </td>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '10px', verticalAlign: 'top' }}>
               <div>Invoice No.: {invoice?.invoice_number}</div>
@@ -56,16 +77,16 @@ const WholesaleInvoice = ({ invoice }) => {
         <tbody>
           <tr>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '10px', verticalAlign: 'top' }}>
-              <div>[{cust_name}]</div>
-              <div>[{cust_addr}]</div>
-              <div>GSTIN: [{cust_gst}]</div>
-              <div>State: - Code: -</div>
+              <div style={{ fontWeight: 'bold' }}>{cust_name}</div>
+              <div style={{ whiteSpace: 'pre-line' }}>{cust_addr}</div>
+              {cust_gst && <div>GSTIN: {cust_gst}</div>}
+              <div>State: {cust_stateInfo.state} - Code: {cust_stateInfo.code}</div>
             </td>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '10px', verticalAlign: 'top' }}>
-              <div>[{cust_name}]</div>
-              <div>[{cust_addr}]</div>
-              <div>GSTIN: [{cust_gst}]</div>
-              <div>State: - Code: -</div>
+              <div style={{ fontWeight: 'bold' }}>{cust_name}</div>
+              <div style={{ whiteSpace: 'pre-line' }}>{invoice?.shipping_address || cust_addr}</div>
+              {cust_gst && <div>GSTIN: {cust_gst}</div>}
+              <div>State: {cust_stateInfo.state} - Code: {cust_stateInfo.code}</div>
             </td>
           </tr>
         </tbody>
@@ -94,9 +115,9 @@ const WholesaleInvoice = ({ invoice }) => {
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>-</td>
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.quantity}</td>
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>Nos</td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.rate}</td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.unit_price}</td>
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>0</td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.amount}</td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.total}</td>
             </tr>
           ))}
           {/* Totals */}

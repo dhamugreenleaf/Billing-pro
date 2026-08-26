@@ -3,6 +3,7 @@ import { InvoiceService } from './InvoiceService';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { Trash2, Eye } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const InvoiceHistory = () => {
   const [invoices, setInvoices] = useState([]);
@@ -62,9 +63,10 @@ const InvoiceHistory = () => {
       await InvoiceService.deleteInvoice(deleteId);
       setInvoices(invoices.filter(i => i.id !== deleteId));
       setDeleteId(null);
+      toast.success('Bill deleted successfully');
     } catch (error) {
       console.error('Failed to delete bill:', error);
-      alert('Failed to delete bill');
+      toast.error('Failed to delete bill');
     } finally {
       setDeleting(false);
     }

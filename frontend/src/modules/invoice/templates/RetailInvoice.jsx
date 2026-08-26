@@ -1,10 +1,10 @@
 import React from 'react';
 
 const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
-  const c_name = invoice?.Company?.name || 'Your Shop Name';
+  const c_name = invoice?.Company?.company_name || invoice?.Company?.name || 'Your Shop Name';
   const c_addr = invoice?.Company?.address || 'Address, City';
-  const c_phone = invoice?.Company?.phone || 'xxxxxxxxxx';
-  const c_gst = invoice?.Company?.gstin || 'Optional';
+  const c_phone = invoice?.Company?.phone || '';
+  const c_gst = invoice?.Company?.gst_number || invoice?.Company?.gstin || '';
 
   const items = invoice?.items || [];
 
@@ -15,19 +15,19 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
       </div>
       
       <div style={{ textAlign: 'center', marginBottom: '15px', lineHeight: '1.4' }}>
-        <div style={{ fontWeight: 'bold' }}>[{c_name}]</div>
-        <div>[{c_addr}] | Ph: [{c_phone}]</div>
-        {c_gst && <div>GSTIN: [{c_gst}]</div>}
+        <div style={{ fontWeight: 'bold' }}>{c_name}</div>
+        <div>{c_addr}{c_phone ? ` | Ph: ${c_phone}` : ''}</div>
+        {c_gst && <div>GSTIN: {c_gst}</div>}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', marginBottom: '15px' }}>
         <tbody>
           <tr>
-            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Bill No.: [{invoice?.invoice_number || '0001'}]</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Date: [{formatDate ? formatDate(invoice?.issue_date) : 'DD-Mon-YYYY'}]</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Bill No.: {invoice?.invoice_number || '0001'}</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Date: {invoice ? (formatDate ? formatDate(invoice.invoice_date || invoice.created_at) : new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })) : 'DD-Mon-YYYY'}</td>
           </tr>
           <tr>
-            <td colSpan="2" style={{ border: '1px solid #ccc', padding: '5px' }}>Cashier: [Name]</td>
+            <td colSpan="2" style={{ border: '1px solid #ccc', padding: '5px' }}>Cashier: Admin</td>
           </tr>
         </tbody>
       </table>
@@ -48,8 +48,8 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
               <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{idx + 1}</td>
               <td style={{ border: '1px solid #ccc', padding: '5px' }}>{item.description}</td>
               <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{item.quantity}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.rate}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.amount}</td>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.unit_price}</td>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.total}</td>
             </tr>
           ))}
           {items.length === 0 && (
@@ -66,7 +66,7 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
           </tr>
           <tr>
             <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Discount</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>0.00</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{invoice?.discount_amount || '0.00'}</td>
           </tr>
           <tr>
             <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Tax (if any)</td>

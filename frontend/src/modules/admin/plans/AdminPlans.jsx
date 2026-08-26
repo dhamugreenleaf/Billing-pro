@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Plus, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
 
 const AdminPlans = () => {
@@ -24,7 +25,7 @@ const AdminPlans = () => {
       setPlans(res.data || []);
     } catch (err) {
       console.error(err);
-      alert('Failed to fetch plans');
+      toast.error('Failed to fetch plans');
     } finally {
       setLoading(false);
     }
@@ -75,9 +76,10 @@ const AdminPlans = () => {
       }
       setIsModalOpen(false);
       fetchPlans();
+      toast.success(editingPlan ? 'Plan updated successfully' : 'Plan created successfully');
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Failed to save plan');
+      toast.error(err.message || 'Failed to save plan');
     }
   };
 
@@ -192,7 +194,7 @@ const AdminPlans = () => {
               
               <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.025em' }}>₹{Number(plan.price)}</span>
-                <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: '500', marginLeft: '4px' }}>/{plan.billing_cycle === 'forever' ? 'forever' : plan.billing_cycle === 'monthly' ? 'month' : 'year'}</span>
+                {Number(plan.price) > 0 && <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: '500', marginLeft: '4px' }}>/{plan.billing_cycle === 'forever' ? 'forever' : plan.billing_cycle === 'monthly' ? 'month' : 'year'}</span>}
               </div>
 
               <div style={{ flex: 1 }}>

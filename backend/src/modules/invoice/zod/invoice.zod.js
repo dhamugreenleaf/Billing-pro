@@ -18,9 +18,10 @@ export const createInvoiceSchema = z.object({
   body: z.object({
     customer_mobile: phoneSchema,
     customer_name: z.string().min(1, 'Customer name is required'),
-    customer_address: z.string().min(1, 'Customer address is required'),
-    description: z.string().min(1, 'Description is required'),
-    amount: z.number().min(0, 'Amount must be greater than or equal to 0'),
+    billing_address: z.string().min(1, 'Billing address is required'),
+    shipping_address: z.string().min(1, 'Shipping address is required'),
+    description: z.string().optional(),
+    amount: z.number().min(0, 'Amount must be greater than or equal to 0').optional(),
     
     // Optional advanced fields
     items: z.array(invoiceItemSchema).optional(),

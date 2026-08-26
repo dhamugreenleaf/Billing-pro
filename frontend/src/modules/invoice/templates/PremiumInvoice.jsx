@@ -14,7 +14,7 @@ const PremiumInvoice = ({ invoice }) => {
         <div>
           <p style={{ margin: 0, color: '#888', textTransform: 'uppercase', fontSize: '12px' }}>Invoice To</p>
           <h3 style={{ margin: '5px 0', color: '#333' }}>{invoice?.Customer?.company_name}</h3>
-          <p style={{ margin: 0, color: '#555' }}>{invoice?.Customer?.address}</p>
+          <p style={{ margin: 0, color: '#555' }}>{invoice?.billing_address}</p>
         </div>
         <div style={{ textAlign: 'right' }}>
           <p style={{ margin: 0, color: '#888', textTransform: 'uppercase', fontSize: '12px' }}>Invoice Details</p>
@@ -33,7 +33,7 @@ const PremiumInvoice = ({ invoice }) => {
           {(invoice?.items || []).map((item, idx) => (
             <tr key={idx}>
               <td style={{ padding: '15px 0', borderBottom: '1px solid #eee', color: '#555' }}>{item.description}</td>
-              <td style={{ padding: '15px 0', textAlign: 'right', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>{item.amount}</td>
+              <td style={{ padding: '15px 0', textAlign: 'right', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>{item.total}</td>
             </tr>
           ))}
         </tbody>

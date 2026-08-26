@@ -11,8 +11,12 @@ export const findOrCreateCustomer = async (company_id, customerData) => {
       customer.name = customerData.name;
       updated = true;
     }
-    if (customerData.address && customer.address !== customerData.address) {
-      customer.address = customerData.address;
+    if (customerData.billing_address && customer.billing_address !== customerData.billing_address) {
+      customer.billing_address = customerData.billing_address;
+      updated = true;
+    }
+    if (customerData.shipping_address && customer.shipping_address !== customerData.shipping_address) {
+      customer.shipping_address = customerData.shipping_address;
       updated = true;
     }
     if (updated) {

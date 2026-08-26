@@ -12,7 +12,7 @@ const AdvancedInvoice = ({ invoice }) => {
   
   const buyerName = invoice.customer_name || 'Cash Customer';
   const buyerMobile = invoice.customer_mobile || '';
-  const buyerAddress = invoice?.Customer?.address || '';
+  const buyerAddress = invoice?.billing_address || '';
   
   const invDate = new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric'
@@ -101,8 +101,8 @@ const AdvancedInvoice = ({ invoice }) => {
               <td style={{ padding: '15px', textAlign: 'left', fontWeight: '500', color: '#111827' }}>{item.description}</td>
               <td style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>{item.hsn}</td>
               <td style={{ padding: '15px', textAlign: 'center', color: '#4b5563' }}>{item.quantity} {item.unit}</td>
-              <td style={{ padding: '15px', textAlign: 'right', color: '#4b5563' }}>₹ {Number(item.rate).toFixed(2)}</td>
-              <td style={{ padding: '15px', textAlign: 'right', fontWeight: '600', color: '#111827' }}>₹ {Number(item.amount).toFixed(2)}</td>
+              <td style={{ padding: '15px', textAlign: 'right', color: '#4b5563' }}>₹ {Number(item.unit_price).toFixed(2)}</td>
+              <td style={{ padding: '15px', textAlign: 'right', fontWeight: '600', color: '#111827' }}>₹ {Number(item.total).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>

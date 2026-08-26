@@ -1,7 +1,15 @@
 import * as invoiceRepo from '../repository/invoice.repository.js';
 import * as customerService from '../../customer/services/customer.service.js';
 import * as companyService from '../../company/services/company.service.js';
+import * as subService from '../../subscription/services/subscription.service.js';
 import AdminSettings from '../../admin/model/adminSettings.model.js';
+
+const planLimits = {
+  'Free': 10,
+  'Basic': 50,
+  'Pro': 500,
+  'Enterprise': Infinity
+};
 
 const generateInvoiceNumber = (prefix, count) => {
   const paddedCount = String(count + 1).padStart(6, '0');
@@ -13,6 +21,16 @@ export const generateInvoice = async (user_id, invoiceData) => {
   const company = await companyService.getCompanyProfile(user_id);
   if (!company) {
     throw { statusCode: 400, message: 'Please complete company profile before generating an invoice.' };
+  }
+
+  // 1b. Check Plan Limits
+  const sub = await subService.getCurrentSubscription(user_id);
+  const planName = sub && sub.Plan ? sub.Plan.name : 'Free';
+  const limit = planLimits[planName] || 10;
+  
+  const currentMonthCount = await invoiceRepo.countInvoicesForCurrentMonth(company.id);
+  if (currentMonthCount >= limit) {
+    throw { statusCode: 403, message: `You have reached the monthly limit of ${limit} bills for the ${planName} plan. Please upgrade to continue generating bills.` };
   }
 
   // Fetch Global Admin Settings to act as fallbacks
@@ -33,7 +51,8 @@ export const generateInvoice = async (user_id, invoiceData) => {
     const customer = await customerService.findOrCreateCustomer(company.id, {
       mobile_number: invoiceData.customer_mobile,
       name: invoiceData.customer_name || '',
-      address: invoiceData.customer_address || ''
+      billing_address: invoiceData.billing_address || '',
+      shipping_address: invoiceData.shipping_address || ''
     });
     customerId = customer.id;
   }
@@ -47,8 +66,28 @@ export const generateInvoice = async (user_id, invoiceData) => {
   let discount_amount = invoiceData.discount || 0;
   let itemsToSave = [];
   
-  // Basic calculation logic
-  subtotal = invoiceData.amount;
+  if (invoiceData.items && invoiceData.items.length > 0) {
+    for (const item of invoiceData.items) {
+      const quantity = item.quantity || 1;
+      const unit_price = item.unit_price || 0;
+      const total = quantity * unit_price;
+      subtotal += total;
+      
+      itemsToSave.push({
+        item_name: item.item_name || '',
+        description: item.description || '',
+        quantity,
+        unit_price,
+        discount: item.discount || 0,
+        tax_percentage: item.tax_percentage || 0,
+        total
+      });
+    }
+  } else {
+    // Fallback if someone uses the old API format
+    subtotal = invoiceData.amount || 0;
+  }
+  
   let taxable_amount = subtotal - discount_amount;
   let tax_amount = 0;
   
@@ -103,8 +142,10 @@ export const generateInvoice = async (user_id, invoiceData) => {
     invoice_number,
     customer_mobile: invoiceData.customer_mobile,
     customer_name: invoiceData.customer_name,
-    description: invoiceData.description,
-    amount: invoiceData.amount,
+    billing_address: invoiceData.billing_address,
+    shipping_address: invoiceData.shipping_address,
+    description: invoiceData.description || null,
+    amount: invoiceData.amount || null,
     
     // GST fields
     gst_enabled: invoiceData.gst_enabled || false,

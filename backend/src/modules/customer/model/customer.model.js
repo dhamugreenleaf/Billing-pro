@@ -28,7 +28,11 @@ const Customer = sequelize.define('Customer', {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  address: {
+  billing_address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  shipping_address: {
     type: DataTypes.STRING,
     allowNull: true,
   }

@@ -38,3 +38,12 @@ export const testLogin = async (req, res, next) => {
     next(error);
   }
 };
+
+export const acceptTerms = async (req, res, next) => {
+  try {
+    const user = await authService.acceptUserTerms(req.user.id);
+    return sendSuccess(res, 'Terms accepted successfully', { user });
+  } catch (error) {
+    next(error);
+  }
+};

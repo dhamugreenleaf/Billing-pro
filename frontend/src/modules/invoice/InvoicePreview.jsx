@@ -12,7 +12,8 @@ import ModernInvoice from './templates/ModernInvoice';
 import ProformaInvoice from './templates/ProformaInvoice';
 import PremiumInvoice from './templates/PremiumInvoice';
 import Button from '../../components/Button';
-import { ArrowLeft, Printer, Download, Share2, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Printer, Download, Share2, Phone, Edit, MessageCircle, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../utils/api';
 
 const InvoicePreview = () => {
@@ -83,8 +84,14 @@ const InvoicePreview = () => {
   };
 
   const handleShareWhatsApp = () => {
-    // Placeholder for WhatsApp sharing
-    alert('Sharing via WhatsApp...');
+    if (invoice.customer_phone) {
+      const text = `Hi ${invoice.customer_name},\nHere is your invoice ${invoice.invoice_number} for ₹${invoice.total.toFixed(2)}.`;
+      const encodedText = encodeURIComponent(text);
+      window.open(`https://wa.me/${invoice.customer_phone}?text=${encodedText}`, '_blank');
+      toast.success('Sharing via WhatsApp...');
+    } else {
+      toast.error('Customer phone number not available');
+    }
   };
 
   if (loading) return <div className="text-center mt-4 text-muted">Loading Preview...</div>;
@@ -110,8 +117,7 @@ const InvoicePreview = () => {
               <div 
                 key={f.id}
                 onClick={() => {
-                  if (f.available) setSelectedFormat(f.template_identifier);
-                  else navigate('/plans');
+                  setSelectedFormat(f.template_identifier);
                 }}
                 style={{
                   backgroundColor: 'white',
@@ -288,15 +294,23 @@ const InvoicePreview = () => {
         <div className="invoice-overflow-wrapper">
           <div className="invoice-print-container">
             
-            {/* Pro overlay if they select a paid template and somehow got here */}
-            {formats.find(f => f.template_identifier === selectedFormat && !f.available) && (
-              <div className="no-print" style={{
-                position: 'absolute', inset: 0, backgroundColor: 'rgba(255,255,255,0.8)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 5
+            {!formats.find(f => f.template_identifier === selectedFormat)?.available && (
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(4px)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                zIndex: 5, textAlign: 'center', padding: 'var(--spacing-xl)'
               }}>
-                <h2 style={{ color: 'var(--color-warning)' }}>Premium Template</h2>
-                <p>Upgrade to unlock the {selectedFormat} format.</p>
-                <Button style={{ marginTop: 'var(--spacing-sm)' }} onClick={() => navigate('/plans')}>View Plans</Button>
+                <div style={{ backgroundColor: '#fff', padding: 'var(--spacing-xl)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', maxWidth: '400px' }}>
+                  <div style={{ fontSize: '48px', marginBottom: 'var(--spacing-md)' }}>🔒</div>
+                  <h3 style={{ margin: '0 0 var(--spacing-sm)' }}>Premium Format Locked</h3>
+                  <p className="text-muted" style={{ margin: '0 0 var(--spacing-lg)' }}>
+                    This format requires the <strong>{formats.find(f => f.template_identifier === selectedFormat)?.required_plan}</strong> plan.
+                  </p>
+                  <Button onClick={() => navigate('/admin/plans')} style={{ width: '100%' }}>
+                    Upgrade Plan
+                  </Button>
+                </div>
               </div>
             )}
 

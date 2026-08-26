@@ -11,6 +11,7 @@ import AdminSettings from '../modules/admin/model/adminSettings.model.js';
 import Plan from '../modules/subscription/model/plan.model.js';
 import Subscription from '../modules/subscription/model/subscription.model.js';
 import InvoiceFormat from '../modules/invoice/model/invoiceFormat.model.js';
+import Product from '../modules/product/model/product.model.js';
 
 export const syncDatabase = async () => {
   try {
@@ -95,5 +96,6 @@ export {
   AdminSettings,
   Plan,
   Subscription,
-  InvoiceFormat
+  InvoiceFormat,
+  Product
 };

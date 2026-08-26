@@ -14,6 +14,7 @@ import reportsRoutes from './src/modules/reports/reports.routes.js';
 import settingsRoutes from './src/modules/settings/settings.routes.js';
 import adminRoutes from './src/modules/admin/admin.routes.js';
 import subscriptionRoutes from './src/modules/subscription/subscription.routes.js';
+import productRoutes from './src/modules/product/routes/product.routes.js';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/products', productRoutes);
 
 app.get('/', (req, res) => {
   res.send('Billing Simply Backend API running...');

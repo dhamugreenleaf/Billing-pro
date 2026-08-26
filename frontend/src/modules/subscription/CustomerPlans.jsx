@@ -249,7 +249,7 @@ const CustomerPlans = () => {
                 
                 <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #f1f5f9' }}>
                   <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.025em' }}>₹{Number(plan.price)}</span>
-                  <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: '500', marginLeft: '4px' }}>/{plan.billing_cycle === 'forever' ? 'forever' : plan.billing_cycle === 'monthly' ? 'month' : 'year'}</span>
+                  {Number(plan.price) > 0 && <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: '500', marginLeft: '4px' }}>/{plan.billing_cycle === 'forever' ? 'forever' : plan.billing_cycle === 'monthly' ? 'month' : 'year'}</span>}
                 </div>
 
                 <div style={{ flex: 1, marginBottom: '2rem' }}>

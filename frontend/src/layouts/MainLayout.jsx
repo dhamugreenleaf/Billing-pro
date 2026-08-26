@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, ReceiptText, FileBarChart2, Settings, User, LogOut, ChevronDown, Crown } from 'lucide-react';
+import { Home, ReceiptText, FileBarChart2, Settings, User, LogOut, ChevronDown, Crown, Package } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/authSlice';
 import api from '../utils/api';
@@ -68,16 +68,26 @@ const MainLayout = () => {
   const navItems = [
     { path: '/', label: 'Home', icon: <Home size={20} /> },
     { path: '/bills', label: 'Bills', icon: <ReceiptText size={20} /> },
+    ...(user?.subscription_status === 'paid' ? [{ path: '/products', label: 'Products', icon: <Package size={20} /> }] : []),
     { path: '/reports', label: 'Reports', icon: <FileBarChart2 size={20} /> },
     { path: '/plans', label: 'Plans', icon: <Crown size={20} /> },
   ];
 
   const isSetupPage = location.pathname === '/setup';
+  const isTermsPage = location.pathname === '/terms';
+  const hideHeaderFooter = isSetupPage || isTermsPage;
+
+  // Enforce Terms & Conditions check
+  useEffect(() => {
+    if (user && user.profile_completed && !user.terms_accepted_at && !isTermsPage) {
+      navigate('/terms');
+    }
+  }, [user, isTermsPage, navigate]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg-main)' }}>
       {/* Mobile Top Header (hidden on large screens ideally, but keeping it simple) */}
-      {!isSetupPage && (
+      {!hideHeaderFooter && (
         <header className="no-print" style={{ 
           backgroundColor: '#ffffff', 
           padding: '0.75rem 1.5rem',
@@ -194,7 +204,7 @@ const MainLayout = () => {
       </main>
 
       {/* Bottom Navigation for Mobile */}
-      {!isSetupPage && (
+      {!hideHeaderFooter && (
         <nav className="no-print" style={{
           position: 'fixed',
           bottom: 0,

@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import Invoice from '../model/invoice.model.js';
 import InvoiceItem from '../model/invoiceItem.model.js';
 import Company from '../../company/model/company.model.js';
@@ -39,6 +40,26 @@ export const getInvoiceById = async (id, company_id) => {
 
 export const countInvoicesByCompany = async (company_id) => {
   return await Invoice.count({ where: { company_id } });
+};
+
+export const countInvoicesForCurrentMonth = async (company_id) => {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const endOfMonth = new Date();
+  endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+  endOfMonth.setDate(0);
+  endOfMonth.setHours(23, 59, 59, 999);
+
+  return await Invoice.count({
+    where: {
+      company_id,
+      created_at: {
+        [Op.between]: [startOfMonth, endOfMonth]
+      }
+    }
+  });
 };
 
 export const updateInvoiceTemplate = async (id, company_id, template) => {

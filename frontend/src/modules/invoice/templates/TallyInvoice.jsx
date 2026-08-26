@@ -14,7 +14,8 @@ const TallyInvoice = ({ invoice }) => {
   
   const buyerName = invoice.customer_name || 'Cash Customer';
   const buyerMobile = invoice.customer_mobile || '';
-  const buyerAddress = invoice.Customer?.address || '';
+  const buyerAddress = invoice?.billing_address || '';
+  const shippingAddress = invoice?.shipping_address || '';
   
   // Use DB generated invoice_date if available
   const invDate = new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', {
@@ -120,7 +121,7 @@ const TallyInvoice = ({ invoice }) => {
         <div style={{ width: '50%', padding: '10px', borderRight: '1px solid #000' }}>
           <div style={{ fontSize: '10px', marginBottom: '4px' }}>Consignee (Ship to)</div>
           <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{buyerName}</div>
-          {buyerAddress && <div style={{ whiteSpace: 'pre-line', marginTop: '2px' }}>{buyerAddress}</div>}
+          {shippingAddress && <div style={{ whiteSpace: 'pre-line', marginTop: '2px' }}>{shippingAddress}</div>}
           <div style={{ marginTop: '2px' }}>{buyerMobile && `Mobile: ${buyerMobile}`}</div>
         </div>
         <div style={{ width: '50%', padding: '10px' }}>
@@ -151,9 +152,9 @@ const TallyInvoice = ({ invoice }) => {
               <td style={{ borderRight: '1px solid #000', padding: '5px', textAlign: 'left', verticalAlign: 'top', fontWeight: 'bold' }}>{item.description}</td>
               <td style={{ borderRight: '1px solid #000', padding: '5px', verticalAlign: 'top' }}>{item.hsn}</td>
               <td style={{ borderRight: '1px solid #000', padding: '5px', verticalAlign: 'top', fontWeight: 'bold' }}>{item.quantity} {item.unit}</td>
-              <td style={{ borderRight: '1px solid #000', padding: '5px', verticalAlign: 'top' }}>{Number(item.rate).toFixed(2)}</td>
+              <td style={{ borderRight: '1px solid #000', padding: '5px', verticalAlign: 'top' }}>{Number(item.unit_price).toFixed(2)}</td>
               <td style={{ borderRight: '1px solid #000', padding: '5px', verticalAlign: 'top' }}>{item.unit}</td>
-              <td style={{ padding: '5px', verticalAlign: 'top', fontWeight: 'bold', textAlign: 'right' }}>{Number(item.amount).toFixed(2)}</td>
+              <td style={{ padding: '5px', verticalAlign: 'top', fontWeight: 'bold', textAlign: 'right' }}>{Number(item.total).toFixed(2)}</td>
             </tr>
           ))}
           {taxAmount > 0 && (

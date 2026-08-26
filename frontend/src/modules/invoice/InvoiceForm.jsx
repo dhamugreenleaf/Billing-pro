@@ -11,9 +11,9 @@ const InvoiceForm = () => {
   const [formData, setFormData] = useState({
     customer_mobile: '',
     customer_name: '',
-    customer_address: '',
-    description: '',
-    amount: '',
+    billing_address: '',
+    shipping_address: '',
+    items: [{ description: '', amount: '' }],
     payment_method: 'UPI',
     gst_enabled: false,
     gst_rate: 18,
@@ -94,7 +94,7 @@ const InvoiceForm = () => {
   }, []);
 
   // Calculate Summary
-  let summarySubtotal = Number(formData.amount) || 0;
+  let summarySubtotal = formData.items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   let summaryTaxAmount = 0;
   let summaryTotal = summarySubtotal;
 
@@ -129,7 +129,8 @@ const InvoiceForm = () => {
           setFormData(prev => ({
             ...prev,
             customer_name: localMatch.name || prev.customer_name,
-            customer_address: localMatch.address || prev.customer_address
+            billing_address: localMatch.billing_address || prev.billing_address,
+            shipping_address: localMatch.shipping_address || prev.shipping_address
           }));
           setShowDropdown(false);
         } else {
@@ -139,7 +140,8 @@ const InvoiceForm = () => {
               setFormData(prev => ({
                 ...prev,
                 customer_name: res.data.name || prev.customer_name,
-                customer_address: res.data.address || prev.customer_address
+                billing_address: res.data.billing_address || prev.billing_address,
+                shipping_address: res.data.shipping_address || prev.shipping_address
               }));
             }
           } catch (err) {
@@ -154,8 +156,9 @@ const InvoiceForm = () => {
     setFormData(prev => ({
       ...prev,
       customer_mobile: customer.mobile_number,
-      customer_name: customer.name || prev.customer_name,
-      customer_address: customer.address || prev.customer_address
+    customer_name: customer.name || prev.customer_name,
+    billing_address: customer.billing_address || prev.billing_address,
+    shipping_address: customer.shipping_address || prev.shipping_address
     }));
     setShowDropdown(false);
   };
@@ -175,17 +178,25 @@ const InvoiceForm = () => {
       setError('Customer name is required');
       return;
     }
-    if (!formData.customer_address.trim()) {
-      setError('Customer address is required');
+    if (!formData.billing_address.trim()) {
+      setError('Billing address is required');
       return;
     }
-    if (!formData.description.trim()) {
-      setError('Description is required');
+    if (!formData.shipping_address.trim()) {
+      setError('Shipping address is required');
       return;
     }
-    if (!formData.amount || Number(formData.amount) <= 0) {
-      setError('Amount must be greater than 0');
-      return;
+    
+    for (let i = 0; i < formData.items.length; i++) {
+      const item = formData.items[i];
+      if (!item.description.trim()) {
+        setError(`Description is required for item ${i + 1}`);
+        return;
+      }
+      if (!item.amount || Number(item.amount) <= 0) {
+        setError(`Amount must be greater than 0 for item ${i + 1}`);
+        return;
+      }
     }
 
 
@@ -196,7 +207,13 @@ const InvoiceForm = () => {
     try {
       const payload = {
         ...formData,
-        amount: Number(formData.amount),
+        items: formData.items.map(item => ({
+          description: item.description,
+          unit_price: Number(item.amount),
+          quantity: 1, // Defaulting to 1 for now, or user can expand later
+        })),
+        amount: summarySubtotal,
+
         gst_rate: formData.gst_enabled ? Number(formData.gst_rate) : 0,
         place_of_supply: formData.gst_enabled ? 'Tamil Nadu' : '',
       };
@@ -290,29 +307,100 @@ const InvoiceForm = () => {
             value={formData.customer_name}
             onChange={handleChange}
           />
-          <Input 
-            name="customer_address"
-            label="Customer Address *"
-            placeholder="Enter customer address"
-            filterType="address"
-            value={formData.customer_address}
-            onChange={handleChange}
-          />
-          <Input 
-            name="description"
-            label="What is this bill for? *"
-            placeholder="e.g. Professional Services"
-            value={formData.description}
-            onChange={handleChange}
-          />
-          <Input 
-            name="amount"
-            label="Amount (₹) *"
-            placeholder="0.00"
-            filterType="amount"
-            value={formData.amount}
-            onChange={handleChange}
-          />
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <Input 
+                name="billing_address"
+                label="Billing Address *"
+                placeholder="Enter billing address"
+                filterType="address"
+                value={formData.billing_address}
+                onChange={handleChange}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Input 
+                name="shipping_address"
+                label="Shipping Address *"
+                placeholder="Enter shipping address"
+                filterType="address"
+                value={formData.shipping_address}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '1.5rem', marginTop: '1rem', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h4 style={{ margin: 0, color: '#334155' }}>Items</h4>
+            </div>
+            
+            {formData.items.map((item, index) => (
+              <div key={index} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px', paddingBottom: '12px', borderBottom: index < formData.items.length - 1 ? '1px dashed #cbd5e1' : 'none' }}>
+                <div style={{ flex: 2 }}>
+                  <Input 
+                    name={`item_description_${index}`}
+                    label={index === 0 ? "What is this bill for? *" : "Item Description *"}
+                    placeholder="e.g. Professional Services"
+                    value={item.description}
+                    onChange={(e) => {
+                      const newItems = [...formData.items];
+                      newItems[index].description = e.target.value;
+                      setFormData({ ...formData, items: newItems });
+                    }}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <Input 
+                    name={`item_amount_${index}`}
+                    label={index === 0 ? "Amount (₹) *" : "Amount (₹) *"}
+                    placeholder="0.00"
+                    filterType="amount"
+                    value={item.amount}
+                    onChange={(e) => {
+                      const newItems = [...formData.items];
+                      newItems[index].amount = e.target.value;
+                      setFormData({ ...formData, items: newItems });
+                    }}
+                  />
+                </div>
+                {formData.items.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newItems = formData.items.filter((_, i) => i !== index);
+                      setFormData({ ...formData, items: newItems });
+                    }}
+                    style={{
+                      marginTop: '28px',
+                      padding: '8px',
+                      background: 'none',
+                      border: '1px solid #ef4444',
+                      color: '#ef4444',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setFormData({
+                  ...formData,
+                  items: [...formData.items, { description: '', amount: '' }]
+                });
+              }}
+              style={{ marginTop: '8px' }}
+            >
+              + Add Another Item
+            </Button>
+          </div>
 
           <div className="form-group" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>GST</label>

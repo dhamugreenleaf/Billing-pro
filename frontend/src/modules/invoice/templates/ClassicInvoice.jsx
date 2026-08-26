@@ -1,11 +1,11 @@
 import React from 'react';
 
 const ClassicInvoice = ({ invoice, formatCurrency, formatDate }) => {
-  const c_name = invoice?.Company?.name || 'Your Firm Name';
+  const c_name = invoice?.Company?.company_name || invoice?.Company?.name || 'Your Firm Name';
   const c_addr = invoice?.Company?.address || 'Address, City, State';
   const c_phone = invoice?.Company?.phone || 'xxxxxxxxxx';
 
-  const cust_name = invoice?.Customer?.company_name || invoice?.Customer?.person_name || 'Customer Name';
+  const cust_name = invoice?.Customer?.company_name || invoice?.customer_name || 'Customer Name';
 
   const items = invoice?.items || [];
 
@@ -22,15 +22,15 @@ const ClassicInvoice = ({ invoice, formatCurrency, formatDate }) => {
         <tbody>
           <tr>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '8px' }}>
-              Cash Memo No.: [{invoice?.invoice_number || '0001'}]
+              Cash Memo No.: {invoice?.invoice_number || '0001'}
             </td>
             <td style={{ width: '50%', border: '1px solid #ccc', padding: '8px' }}>
-              Date: [{formatDate ? formatDate(invoice?.issue_date) : 'DD-Mon-YYYY'}]
+              Date: {invoice ? (formatDate ? formatDate(invoice.invoice_date || invoice.created_at) : new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })) : 'DD-Mon-YYYY'}
             </td>
           </tr>
           <tr>
             <td colSpan="2" style={{ border: '1px solid #ccc', padding: '8px' }}>
-              M/s (Customer): [{cust_name}]
+              M/s (Customer): {cust_name} {invoice?.Customer?.gstin && `| GSTIN: ${invoice.Customer.gstin}`}
             </td>
           </tr>
         </tbody>
@@ -52,8 +52,8 @@ const ClassicInvoice = ({ invoice, formatCurrency, formatDate }) => {
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>{idx + 1}</td>
               <td style={{ border: '1px solid #ccc', padding: '8px' }}>{item.description}</td>
               <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'center' }}>{item.quantity}</td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.rate}</td>
-              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.amount}</td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.unit_price}</td>
+              <td style={{ border: '1px solid #ccc', padding: '8px', textAlign: 'right' }}>{item.total}</td>
             </tr>
           ))}
           {/* Empty rows to match design */}
@@ -85,7 +85,7 @@ const ClassicInvoice = ({ invoice, formatCurrency, formatDate }) => {
               Customer's Signature
             </td>
             <td style={{ padding: '8px', verticalAlign: 'bottom', width: '50%', textAlign: 'right', fontWeight: 'bold' }}>
-              For [{c_name}]
+              For {c_name}
             </td>
           </tr>
         </tbody>

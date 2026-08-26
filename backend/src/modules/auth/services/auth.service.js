@@ -11,7 +11,12 @@ export const verifyMsg91Token = async (identifier, accessToken, name) => {
   }
 
   // Verify token via MSG91 Server-Side Verification API
-  if (process.env.MSG91_AUTH_KEY && process.env.MSG91_WIDGET_ID) {
+  const isMockToken = accessToken === "mock_access_token_123456";
+  const isDev = process.env.NODE_ENV !== 'production';
+
+  if (isMockToken && isDev) {
+    console.log(`[MSG91] Using mock token bypass in development for: ******${mobile_number.slice(-4)}`);
+  } else if (process.env.MSG91_AUTH_KEY && process.env.MSG91_WIDGET_ID) {
     try {
       console.log(`[MSG91] Verifying access token for: ******${mobile_number.slice(-4)}`);
       const response = await fetch("https://api.msg91.com/api/v5/widget/verifyAccessToken", {
@@ -73,7 +78,8 @@ export const verifyMsg91Token = async (identifier, accessToken, name) => {
       mobile_number: user.mobile_number,
       name: user.name,
       role: user.role,
-      profile_completed: user.profile_completed
+      profile_completed: user.profile_completed,
+      terms_accepted_at: user.terms_accepted_at
     },
     token
   };
@@ -152,8 +158,26 @@ export const testLoginService = async (username, password) => {
       mobile_number: user.mobile_number,
       name: user.name,
       role: user.role,
-      profile_completed: user.profile_completed
+      profile_completed: user.profile_completed,
+      terms_accepted_at: user.terms_accepted_at
     },
     token
+  };
+};
+
+export const acceptUserTerms = async (userId) => {
+  const user = await authRepo.findUserById(userId);
+  if (!user) throw { statusCode: 404, message: 'User not found' };
+  
+  user.terms_accepted_at = new Date();
+  await user.save();
+  
+  return {
+    id: user.id,
+    mobile_number: user.mobile_number,
+    name: user.name,
+    role: user.role,
+    profile_completed: user.profile_completed,
+    terms_accepted_at: user.terms_accepted_at
   };
 };

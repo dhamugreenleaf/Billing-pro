@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Save, Info, AlertCircle, CheckCircle2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
 
 const defaultRates = [
@@ -36,7 +37,6 @@ const AdminGstSettings = () => {
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -103,10 +103,10 @@ const AdminGstSettings = () => {
       
       setOriginalSettings(settings);
       setHasChanges(false);
-      showToast('GST settings updated successfully.');
+      toast.success('GST settings updated successfully.');
     } catch (err) {
       console.error('Failed to save', err);
-      alert('Failed to save settings');
+      toast.error('Failed to save settings');
     } finally {
       setSaving(false);
     }

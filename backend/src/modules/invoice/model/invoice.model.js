@@ -43,12 +43,20 @@ const Invoice = sequelize.define('Invoice', {
   },
   description: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   // Basic total if user doesn't want items
   amount: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true,
+  },
+  billing_address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  shipping_address: {
+    type: DataTypes.STRING,
+    allowNull: true,
   },
   // Calculated fields
   gst_enabled: {

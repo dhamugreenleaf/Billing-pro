@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
 import { ArrowLeft, User, Building, FileText, CheckCircle, XCircle } from 'lucide-react';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const AdminCustomerDetails = () => {
   const { id } = useParams();
@@ -9,6 +11,7 @@ const AdminCustomerDetails = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -24,13 +27,8 @@ const AdminCustomerDetails = () => {
     fetchDetails();
   }, [id]);
 
-  const toggleStatus = async () => {
-    if (!data?.user) return;
-    
-    if (!window.confirm(`Are you sure you want to ${data.user.is_active ? 'deactivate' : 'activate'} this customer?`)) {
-      return;
-    }
-
+  const executeToggleStatus = async () => {
+    setShowConfirm(false);
     setUpdating(true);
     try {
       const response = await api.put(`/admin/customers/${id}/status`, {
@@ -40,11 +38,17 @@ const AdminCustomerDetails = () => {
         ...prev,
         user: { ...prev.user, is_active: !prev.user.is_active }
       }));
+      toast.success(response.message || 'Customer status updated');
     } catch (err) {
-      alert('Failed to update status');
+      toast.error('Failed to update status');
     } finally {
       setUpdating(false);
     }
+  };
+
+  const toggleStatus = () => {
+    if (!data?.user) return;
+    setShowConfirm(true);
   };
 
   if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading details...</div>;
@@ -133,6 +137,16 @@ const AdminCustomerDetails = () => {
 
 
       </div>
+
+      <ConfirmModal 
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={executeToggleStatus}
+        title={`${user?.is_active ? 'Deactivate' : 'Activate'} Customer`}
+        message={`Are you sure you want to ${user?.is_active ? 'deactivate' : 'activate'} this customer?`}
+        confirmText={user?.is_active ? 'Yes, Deactivate' : 'Yes, Activate'}
+        isDestructive={user?.is_active}
+      />
     </div>
   );
 };

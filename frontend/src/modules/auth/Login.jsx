@@ -306,6 +306,16 @@ const Login = () => {
       return;
     }
 
+    // Local Development Bypass
+    if (otp === '123456' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      console.log("[MSG91] Local dev bypass for OTP 123456");
+      if (window.configuration && window.configuration.success) {
+        setLoading(true);
+        window.configuration.success({ message: "mock_access_token_123456" });
+      }
+      return;
+    }
+
     setError('');
     setLoading(true);
     console.log("[MSG91] OTP verification started");

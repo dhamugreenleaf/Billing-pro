@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const AdminCustomers = () => {
   const navigate = useNavigate();
@@ -10,6 +12,9 @@ const AdminCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
   const fetchCustomers = async () => {
     try {
@@ -47,21 +52,31 @@ const AdminCustomers = () => {
     try {
       await api.put(`/admin/customers/${id}/status`, { is_active: !currentStatus });
       setCustomers(customers.map(c => c.id === id ? { ...c, is_active: !currentStatus } : c));
+      toast.success(`Customer marked as ${!currentStatus ? 'Active' : 'Inactive'}`);
     } catch (err) {
       console.error('Failed to update status', err);
-      alert('Failed to update customer status');
+      toast.error('Failed to update customer status');
     }
   };
 
-  const handleDeleteCustomer = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this customer? This will disable their access.')) return;
+  const executeDeleteCustomer = async () => {
+    if (!customerToDelete) return;
     try {
-      await api.delete(`/admin/customers/${id}`);
-      fetchCustomers();
+      await api.delete(`/admin/customers/${customerToDelete}`);
+      setCustomers(customers.filter(c => c.id !== customerToDelete));
+      toast.success('Customer deleted successfully');
     } catch (err) {
       console.error('Failed to delete customer', err);
-      alert('Failed to delete customer');
+      toast.error('Failed to delete customer');
+    } finally {
+      setShowDeleteConfirm(false);
+      setCustomerToDelete(null);
     }
+  };
+
+  const handleDeleteCustomer = (id) => {
+    setCustomerToDelete(id);
+    setShowDeleteConfirm(true);
   };
 
   return (
@@ -158,7 +173,16 @@ const AdminCustomers = () => {
           </table>
         </div>
       </div>
-
+      
+      <ConfirmModal 
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={executeDeleteCustomer}
+        title="Delete Customer"
+        message="Are you sure you want to delete this customer? This will permanently disable their access and remove their data."
+        confirmText="Yes, Delete"
+        isDestructive={true}
+      />
     </div>
   );
 };

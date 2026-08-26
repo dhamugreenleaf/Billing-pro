@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { User } from 'lucide-react';
+import { User, Mail, Phone, Lock, Save } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../../utils/api';
 import { updateUser } from '../../../redux/authSlice';
 
@@ -24,12 +25,12 @@ const AdminSettings = () => {
       setLoading(true);
       const res = await api.put('/admin/profile', formData);
       if (res.data.success) {
-        alert('Profile updated successfully');
         dispatch(updateUser(res.data.data));
+        toast.success('Profile updated successfully');
       }
     } catch (error) {
-      console.error(error);
-      alert(error.response?.data?.message || 'Failed to update profile');
+      console.error('Failed to update profile:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
