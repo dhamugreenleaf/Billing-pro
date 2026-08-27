@@ -4,12 +4,15 @@ import { Home, ReceiptText, FileBarChart2, Settings, User, LogOut, ChevronDown, 
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../redux/authSlice';
 import api from '../utils/api';
+import useSEO from '../utils/useSEO';
 
-const MainLayout = () => {
+const MainLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+
+  useSEO({ noindex: true });
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -200,7 +203,7 @@ const MainLayout = () => {
 
       {/* Main Content Area */}
       <main style={{ flex: 1, paddingBottom: '80px' }}>
-        <Outlet />
+        {children || <Outlet />}
       </main>
 
       {/* Bottom Navigation for Mobile */}

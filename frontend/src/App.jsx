@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import PwaInstallPrompt from './components/PwaInstallPrompt';
@@ -8,6 +8,7 @@ import PwaInstallPrompt from './components/PwaInstallPrompt';
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
+import PublicLayout from './layouts/PublicLayout';
 
 // Modules
 import Login from './modules/auth/Login';
@@ -36,10 +37,18 @@ import PrivacyPolicyPage from './modules/settings/PrivacyPolicy';
 import CustomerPlans from './modules/subscription/CustomerPlans';
 import Products from './modules/product/Products';
 
+import AdminLogin from './modules/auth/AdminLogin';
+import GstBillingPage from './modules/public/GstBillingPage';
+import InvoiceFormatsPage from './modules/public/InvoiceFormatsPage';
+import RetailBillingPage from './modules/public/RetailBillingPage';
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   
   if (!isAuthenticated) {
+    if (allowedRoles && allowedRoles.includes('admin')) {
+      return <Navigate to="/admin-login" replace />;
+    }
     return <Navigate to="/login" replace />;
   }
 
@@ -51,14 +60,42 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+const RootRoute = () => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  if (isAuthenticated) {
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
+    return (
+      <MainLayout>
+        <Home />
+      </MainLayout>
+    );
+  }
+
+  return <Navigate to="/login" replace />;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Root Route */}
+        <Route path="/" element={<RootRoute />} />
+
         {/* Public Auth Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/test-login" element={<TestLogin />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+        </Route>
+
+        {/* Public SEO Routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/gst-billing-software" element={<GstBillingPage />} />
+          <Route path="/invoice-formats" element={<InvoiceFormatsPage />} />
+          <Route path="/retail-billing-software" element={<RetailBillingPage />} />
         </Route>
 
         {/* Admin Routes */}
@@ -84,14 +121,12 @@ function App() {
 
         {/* Customer Routes */}
         <Route 
-          path="/" 
           element={
             <ProtectedRoute allowedRoles={['customer']}>
               <MainLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Home />} />
           <Route path="setup" element={<CompanySetup />} />
           <Route path="terms" element={<TermsConditions />} />
           <Route path="invoice/new" element={<InvoiceForm />} />

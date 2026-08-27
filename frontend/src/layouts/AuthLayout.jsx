@@ -1,7 +1,14 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import useSEO from '../utils/useSEO';
 
 const AuthLayout = () => {
+  useSEO({
+    title: 'Login | GoBill',
+    description: 'Login to your GoBill billing software account to manage your invoices and customers.',
+    noindex: true
+  });
+
   return (
     <div style={{
       display: 'flex',

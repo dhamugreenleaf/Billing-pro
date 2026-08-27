@@ -6,12 +6,15 @@ import {
   BarChart, Package, Settings, LogOut, Menu, X, FileSignature 
 } from 'lucide-react';
 import { logout } from '../redux/authSlice';
+import useSEO from '../utils/useSEO';
 import '../styles/admin.css';
 
 const AdminLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useSEO({ noindex: true });
 
   const handleLogout = () => {
     dispatch(logout());
