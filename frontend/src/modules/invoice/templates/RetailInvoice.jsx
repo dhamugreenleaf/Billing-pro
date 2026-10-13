@@ -6,7 +6,14 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
   const c_phone = invoice?.Company?.phone || '';
   const c_gst = invoice?.Company?.gst_number || invoice?.Company?.gstin || '';
 
-  const items = invoice?.items || [];
+  const items = (invoice?.items && invoice.items.length > 0) 
+    ? invoice.items 
+    : ((invoice?.InvoiceItems && invoice.InvoiceItems.length > 0) ? invoice.InvoiceItems : []);
+
+  const totalAmount = Number(invoice?.total_amount || invoice?.total || 0);
+  const taxAmount = Number(invoice?.tax_amount || 0);
+  const discountAmount = Number(invoice?.discount_amount || invoice?.discount || 0);
+  const subtotal = Number(invoice?.subtotal || invoice?.amount || (totalAmount - taxAmount + discountAmount)) || 0;
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', color: '#000', backgroundColor: '#fff', padding: '20px', maxWidth: '400px', margin: '0 auto', border: '1px solid #ccc' }}>
@@ -15,7 +22,13 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
       </div>
       
       <div style={{ textAlign: 'center', marginBottom: '15px', lineHeight: '1.4' }}>
-        <div style={{ fontWeight: 'bold' }}>{c_name}</div>
+        {invoice?.Company?.logo && (
+          <div style={{ marginBottom: '8px' }}>
+            <img src={invoice.Company.logo} alt="Logo" style={{ maxHeight: '55px', maxWidth: '120px', objectFit: 'contain' }} />
+          </div>
+        )}
+        <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{c_name}</div>
+        {invoice?.Company?.owner_name && <div style={{ fontSize: '11px', color: '#444' }}>Prop: {invoice.Company.owner_name}</div>}
         <div>{c_addr}{c_phone ? ` | Ph: ${c_phone}` : ''}</div>
         {c_gst && <div>GSTIN: {c_gst}</div>}
       </div>
@@ -23,11 +36,14 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', marginBottom: '15px' }}>
         <tbody>
           <tr>
-            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Bill No.: {invoice?.invoice_number || '0001'}</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Date: {invoice ? (formatDate ? formatDate(invoice.invoice_date || invoice.created_at) : new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })) : 'DD-Mon-YYYY'}</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Bill No.: <strong>{invoice?.invoice_number || '0001'}</strong></td>
+            <td style={{ border: '1px solid #ccc', padding: '5px' }}>Date: <strong>{invoice ? (formatDate ? formatDate(invoice.invoice_date || invoice.created_at) : new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })) : 'DD-Mon-YYYY'}</strong></td>
           </tr>
           <tr>
-            <td colSpan="2" style={{ border: '1px solid #ccc', padding: '5px' }}>Cashier: Admin</td>
+            <td colSpan="2" style={{ border: '1px solid #ccc', padding: '5px' }}>
+              Customer: <strong>{invoice?.Customer?.company_name || invoice?.customer_name || 'Walk-in Customer'}</strong>
+              {(invoice?.customer_mobile || invoice?.Customer?.mobile_number) && ` (${invoice?.customer_mobile || invoice?.Customer?.mobile_number})`}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -43,17 +59,22 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
           </tr>
         </thead>
         <tbody>
-          {items.map((item, idx) => (
-            <tr key={idx}>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{idx + 1}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px' }}>{item.description}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{item.quantity}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.unit_price}</td>
-              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{item.total}</td>
-            </tr>
-          ))}
+          {items.map((item, idx) => {
+            const qty = Number(item.quantity) || 1;
+            const price = Number(item.unit_price !== undefined && item.unit_price !== '' ? item.unit_price : (item.amount ? item.amount / qty : (item.rate || 0))) || 0;
+            const lineTotal = Number(item.total !== undefined && item.total !== '' ? item.total : (qty * price)) || 0;
+            return (
+              <tr key={idx}>
+                <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{idx + 1}</td>
+                <td style={{ border: '1px solid #ccc', padding: '5px' }}>{item.description || item.item_name || 'Item'}</td>
+                <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>{qty}</td>
+                <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>₹{price.toFixed(2)}</td>
+                <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>₹{lineTotal.toFixed(2)}</td>
+              </tr>
+            );
+          })}
           {items.length === 0 && (
-            <tr><td colSpan="5" style={{ border: '1px solid #ccc', height: '100px' }}></td></tr>
+            <tr><td colSpan="5" style={{ border: '1px solid #ccc', height: '80px', textAlign: 'center', color: '#888' }}>No items</td></tr>
           )}
         </tbody>
       </table>
@@ -61,30 +82,33 @@ const RetailInvoice = ({ invoice, formatCurrency, formatDate }) => {
       <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc', marginBottom: '15px' }}>
         <tbody>
           <tr>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', width: '80%' }}>Subtotal</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', width: '20%' }}>{invoice?.subtotal || '0.00'}</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', width: '70%' }}>Subtotal</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', width: '30%' }}>₹{subtotal.toFixed(2)}</td>
           </tr>
-          <tr>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Discount</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{invoice?.discount_amount || '0.00'}</td>
-          </tr>
-          <tr>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Tax (if any)</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{invoice?.tax_amount || '0.00'}</td>
-          </tr>
+          {discountAmount > 0 && (
+            <tr>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Discount</td>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right', color: '#16a34a' }}>- ₹{discountAmount.toFixed(2)}</td>
+            </tr>
+          )}
+          {taxAmount > 0 && (
+            <tr>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Tax (GST)</td>
+              <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>₹{taxAmount.toFixed(2)}</td>
+            </tr>
+          )}
           <tr style={{ backgroundColor: '#e2e8f0', fontWeight: 'bold' }}>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Total Invoice Amount</td>
-            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>{invoice?.total_amount || '0.00'}</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>Grand Total</td>
+            <td style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'right' }}>₹{totalAmount.toFixed(2)}</td>
           </tr>
         </tbody>
       </table>
 
-      <div style={{ textAlign: 'center', fontStyle: 'italic', marginBottom: '20px' }}>
+      <div style={{ textAlign: 'center', fontStyle: 'italic', marginBottom: '8px' }}>
         Thank you! Goods once sold are not returnable.
       </div>
-      
-      <div style={{ color: '#888', fontStyle: 'italic', fontSize: '10px', textAlign: 'center' }}>
-        Retail/POS Bill: compact counter-sale receipt for walk-in customers — minimal fields, fast to fill, printable on narrow paper.
+      <div style={{ textAlign: 'center', fontSize: '9px', color: '#64748b', borderTop: '1px dashed #ccc', paddingTop: '6px' }}>
+        Generated via <strong>GoBill</strong> • https://gobill.gldatacenter.com
       </div>
     </div>
   );

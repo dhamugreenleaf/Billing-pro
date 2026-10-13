@@ -10,7 +10,6 @@ const User = sequelize.define('User', {
   mobile_number: {
     type: DataTypes.STRING(15),
     allowNull: false,
-    unique: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -59,6 +58,12 @@ const User = sequelize.define('User', {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
+  indexes: [
+    {
+      unique: true,
+      fields: ['mobile_number', 'role']
+    }
+  ]
 });
 
 export default User;

@@ -17,6 +17,9 @@ export const getProfile = async (req, res, next) => {
     const company = await companyService.getCompanyProfile(req.user.id);
     return sendSuccess(res, 'Company profile retrieved successfully', company);
   } catch (error) {
+    if (error.statusCode === 404) {
+      return sendSuccess(res, 'Company profile not found', null);
+    }
     next(error);
   }
 };

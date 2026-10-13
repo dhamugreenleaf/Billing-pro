@@ -8,16 +8,22 @@ export const findOrCreateCustomer = async (company_id, customerData) => {
   } else {
     let updated = false;
     if (customerData.name && customer.name !== customerData.name) {
-      customer.name = customerData.name;
-      updated = true;
+      if (!customer.name || customerData.name !== 'Cash Customer') {
+        customer.name = customerData.name;
+        updated = true;
+      }
     }
     if (customerData.billing_address && customer.billing_address !== customerData.billing_address) {
-      customer.billing_address = customerData.billing_address;
-      updated = true;
+      if (!customer.billing_address || !['Store Counter', 'Store Walk-in'].includes(customerData.billing_address)) {
+        customer.billing_address = customerData.billing_address;
+        updated = true;
+      }
     }
     if (customerData.shipping_address && customer.shipping_address !== customerData.shipping_address) {
-      customer.shipping_address = customerData.shipping_address;
-      updated = true;
+      if (!customer.shipping_address || !['Store Counter', 'Store Walk-in'].includes(customerData.shipping_address)) {
+        customer.shipping_address = customerData.shipping_address;
+        updated = true;
+      }
     }
     if (updated) {
       await customer.save();

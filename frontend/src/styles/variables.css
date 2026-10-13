@@ -1,22 +1,75 @@
-:root {
-  /* Colors - Premium Corporate Theme */
-  --color-primary: #0f172a;       /* Deep slate/navy for primary actions */
-  --color-primary-hover: #1e293b; /* Slightly lighter for hover */
-  --color-success: #059669;       /* Refined emerald green */
-  --color-error: #e11d48;         /* Rose/Red for errors */
-  --color-warning: #ea580c;       /* Crisp orange */
-  
-  --color-bg-main: #f8fafc;       /* Ultra-light slate for premium depth */
-  --color-bg-card: #ffffff;       /* Pure white for foreground elements */
-  --color-bg-input: #ffffff;      
-  
-  --color-text-main: #0f172a;     /* Sharp contrast text */
-  --color-text-muted: #475569;    /* Refined slate for secondary text */
-  
-  --color-border: #e2e8f0;        /* Soft border */
-  --color-border-focus: #3b82f6;  /* Crisp blue focus ring */
+:root, [data-theme="light"] {
+  /* =========================================================
+     BILLING PRO - GREEN & WHITE MODERN DESIGN SYSTEM
+     Built for shopkeepers, normal customers & vendors
+     Clean, professional, high-contrast, trustworthy
+     ========================================================= */
 
-  /* Typography */
+  /* Canvas & Containers - Distinct Refreshing Green Canvas */
+  --color-bg-main: #e8f5ec;          /* Distinct, refreshing sage-mint canvas */
+  --color-bg-card: #ffffff;          /* Pure crisp white elevated cards */
+  --color-bg-card-hover: #f2faf5;    /* Subtle mint card hover */
+  --color-bg-subtle: #dcf2e5;        /* Soft mint secondary surface */
+  --color-bg-input: #ffffff;         /* Crisp white input background */
+  --color-bg-glass: rgba(255, 255, 255, 0.94); /* Frosted glass */
+  
+  /* Primary & Accent Green Colors */
+  --color-primary: #059669;          /* Rich emerald green (trust & growth) */
+  --color-primary-hover: #047857;    /* Deep forest green */
+  --color-primary-light: #ecfdf5;    /* Soft mint tint */
+  --color-primary-glow: rgba(5, 150, 105, 0.22);
+
+  --color-accent: #10b981;           /* Vibrant jade green */
+  --color-accent-hover: #059669;     /* Emerald hover */
+  --color-accent-light: #f0fdf4;     /* Crisp light green */
+  --color-accent-glow: rgba(16, 185, 129, 0.2);
+
+  /* Mixed Professional Accent Colors */
+  --color-teal: #0d9488;             /* Fresh sea teal for tools/quick actions */
+  --color-teal-light: #ccfbf1;       /* Light teal background badge */
+  --color-indigo: #4f46e5;           /* Royal indigo for bills & registers */
+  --color-indigo-light: #e0e7ff;     /* Soft indigo tint */
+  --color-violet: #0f766e;           /* Deep teal accent */
+  --color-violet-light: #f0fdfa;     /* Soft teal tint */
+  --color-cyan: #0891b2;             /* Ocean cyan */
+  --color-cyan-light: #cffafe;       /* Light cyan tint */
+  
+  /* Feedback & Status */
+  --color-success: #10b981;          /* Crisp emerald green */
+  --color-success-hover: #059669;
+  --color-success-light: #ecfdf5;    /* Soft emerald tint */
+  --color-success-glow: rgba(16, 185, 129, 0.2);
+
+  --color-error: #ef4444;            /* Coral alert red */
+  --color-error-hover: #dc2626;
+  --color-error-light: #fef2f2;      /* Soft red tint */
+  --color-error-glow: rgba(239, 68, 68, 0.2);
+
+  --color-warning: #f59e0b;          /* Golden amber for cash & dues */
+  --color-warning-hover: #d97706;
+  --color-warning-light: #fffbeb;    /* Soft amber tint */
+  --color-warning-glow: rgba(245, 158, 11, 0.2);
+
+  /* Typography (High readability for normal users & vendors) */
+  --color-text-main: #0f172a;        /* High-contrast crisp charcoal */
+  --color-text-muted: #475569;       /* Clear secondary slate */
+  --color-text-subtle: #64748b;      /* Tertiary metadata text */
+  
+  /* Borders & Dividers with Crisp Mint Toning */
+  --color-border: #c4e7d4;           /* Soft crisp mint-tinted border */
+  --color-border-subtle: #daf0e5;    /* Fresh minty divider */
+  --color-border-hover: #9edcbf;     /* Interactive border hover */
+  --color-border-focus: #059669;     /* Emerald green focus ring */
+  --color-border-glow: rgba(5, 150, 105, 0.3);
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --gradient-accent: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  --gradient-emerald: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --gradient-card: linear-gradient(180deg, #ffffff 0%, #f4faf6 100%);
+  --gradient-hero: linear-gradient(135deg, #064e3b 0%, #059669 55%, #10b981 100%);
+
+  /* Typography Fonts & Sizes */
   --font-main: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -24,6 +77,7 @@
   --font-size-lg: 1.125rem;
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
 
   /* Spacing */
   --spacing-xs: 0.25rem;
@@ -33,15 +87,104 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Border Radius - Sharper, more corporate */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Shadows - Premium, diffuse, multi-layered */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-floating: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-  --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Soft focus ring */
+  /* Shadows - Soft Natural Green & Clean Elevation */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(5, 150, 105, 0.05);
+  --shadow-lg: 0 10px 25px -3px rgba(5, 150, 105, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 20px 30px -5px rgba(5, 150, 105, 0.16), 0 8px 16px -4px rgba(15, 23, 42, 0.05);
+  --shadow-floating: 0 25px 40px -10px rgba(15, 23, 42, 0.12), 0 10px 20px -5px rgba(5, 150, 105, 0.1);
+  --shadow-focus: 0 0 0 3px rgba(5, 150, 105, 0.25);
+  --shadow-button: 0 6px 18px rgba(5, 150, 105, 0.28);
+
+  /* Minimal Smooth Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================================
+   BILLING PRO - SLEEK DARK GREEN TOKENS
+   Deep emerald-night canvas, crisp white text & mint highlights
+   ========================================================= */
+[data-theme="dark"] {
+  /* Canvas & Containers */
+  --color-bg-main: #061812;          /* Deep jade-night canvas */
+  --color-bg-card: #0c241c;          /* Elevated dark jade card */
+  --color-bg-card-hover: #123328;    /* Interactive card hover */
+  --color-bg-subtle: #0f2c22;        /* Secondary dark jade surface */
+  --color-bg-input: #081d16;         /* High-contrast dark jade input */
+  --color-bg-glass: rgba(12, 36, 28, 0.94); /* Frosted dark jade glass */
+  
+  /* Primary & Accent Colors */
+  --color-primary: #10b981;          /* Luminous mint emerald */
+  --color-primary-hover: #34d399;    /* Bright mint hover */
+  --color-primary-light: rgba(16, 185, 129, 0.16);
+  --color-primary-glow: rgba(16, 185, 129, 0.35);
+
+  --color-accent: #34d399;           /* Bright jade */
+  --color-accent-hover: #6ee7b7;     /* High-glow mint */
+  --color-accent-light: rgba(52, 211, 153, 0.15);
+  --color-accent-glow: rgba(52, 211, 153, 0.3);
+
+  --color-teal: #2dd4bf;             /* Vibrant teal */
+  --color-teal-light: rgba(45, 212, 191, 0.18);
+  --color-indigo: #818cf8;           /* Royal indigo for bills */
+  --color-indigo-light: rgba(129, 140, 248, 0.18);
+  --color-violet: #2dd4bf;           /* Luminous teal */
+  --color-violet-light: rgba(45, 212, 191, 0.15);
+  --color-cyan: #38bdf8;             /* Sky blue */
+  --color-cyan-light: rgba(56, 189, 248, 0.15);
+  
+  /* Feedback & Status */
+  --color-success: #10b981;          /* Crisp emerald green */
+  --color-success-hover: #34d399;
+  --color-success-light: rgba(16, 185, 129, 0.18);
+  --color-success-glow: rgba(16, 185, 129, 0.3);
+
+  --color-error: #f43f5e;            /* Coral rose red */
+  --color-error-hover: #fb7185;
+  --color-error-light: rgba(244, 63, 94, 0.18);
+  --color-error-glow: rgba(244, 63, 94, 0.3);
+
+  --color-warning: #fbbf24;          /* Radiant warm amber */
+  --color-warning-hover: #f59e0b;
+  --color-warning-light: rgba(251, 191, 36, 0.18);
+  --color-warning-glow: rgba(251, 191, 36, 0.3);
+
+  /* Typography - Ultra High Readability */
+  --color-text-main: #f8fafc;        /* Ultra crisp bright text */
+  --color-text-muted: #cbd5e1;       /* Crisp silver-slate secondary text */
+  --color-text-subtle: #94a3b8;      /* Clean metadata */
+  
+  /* Borders & Dividers */
+  --color-border: #183e32;           /* Deep jade border */
+  --color-border-subtle: #123026;    /* Dark jade divider */
+  --color-border-hover: #215142;     /* Hover boundary */
+  --color-border-focus: #10b981;     /* Luminous mint focus ring */
+  --color-border-glow: rgba(16, 185, 129, 0.35);
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-card: linear-gradient(180deg, #0f2c22 0%, #0c241c 100%);
+  --gradient-hero: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #047857 100%);
+
+  /* Shadows - Dark Mode Emerald Glow */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(16, 185, 129, 0.12);
+  --shadow-xl: 0 20px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(16, 185, 129, 0.18);
+  --shadow-floating: 0 25px 45px -10px rgba(0, 0, 0, 0.85), 0 0 25px rgba(16, 185, 129, 0.2);
+  --shadow-focus: 0 0 0 3px rgba(16, 185, 129, 0.35);
+  --shadow-button: 0 6px 20px rgba(16, 185, 129, 0.35);
 }

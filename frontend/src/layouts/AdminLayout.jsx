@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { 
   LayoutDashboard, Users, Building, FileText, 
-  BarChart, Package, Settings, LogOut, Menu, X, FileSignature 
+  BarChart, Package, Settings, LogOut, Menu, X, FileSignature, ShieldCheck
 } from 'lucide-react';
 import { logout } from '../redux/authSlice';
 import useSEO from '../utils/useSEO';
@@ -30,13 +30,13 @@ const AdminLayout = () => {
   };
 
   const navLinks = [
-    { to: '/admin', icon: <LayoutDashboard size={20} />, label: 'Dashboard', exact: true },
-    { to: '/admin/customers', icon: <Users size={20} />, label: 'Customers' },
-    { to: '/admin/reports', icon: <BarChart size={20} />, label: 'Reports' },
-    { to: '/admin/plans', icon: <Package size={20} />, label: 'Plans & Subs' },
-    { to: '/admin/formats', icon: <FileSignature size={20} />, label: 'Invoice Formats' },
-    { to: '/admin/gst', icon: <FileText size={20} />, label: 'GST Settings' },
-    { to: '/admin/settings', icon: <Settings size={20} />, label: 'Admin Settings' },
+    { to: '/admin', icon: <LayoutDashboard size={19} />, label: 'Dashboard', exact: true },
+    { to: '/admin/customers', icon: <Users size={19} />, label: 'Customers' },
+    { to: '/admin/reports', icon: <BarChart size={19} />, label: 'Reports' },
+    { to: '/admin/plans', icon: <Package size={19} />, label: 'Plans & Subs' },
+    { to: '/admin/formats', icon: <FileSignature size={19} />, label: 'Invoice Formats' },
+    { to: '/admin/gst', icon: <FileText size={19} />, label: 'GST Settings' },
+    { to: '/admin/settings', icon: <Settings size={19} />, label: 'Admin Settings' },
   ];
 
   return (
@@ -44,19 +44,41 @@ const AdminLayout = () => {
       {/* Top Header */}
       <header className="admin-header">
         <div className="admin-header-left">
-          <button className="admin-menu-toggle d-md-none" onClick={toggleSidebar}>
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          <button 
+            className="admin-menu-toggle d-md-none" 
+            onClick={toggleSidebar}
+            aria-label="Toggle navigation menu"
+          >
+            {isSidebarOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <LayoutDashboard size={24} color="#3b82f6" />
-            <h2 className="admin-logo-text">Billing Pro Admin</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{
+              width: 34,
+              height: 34,
+              borderRadius: 8,
+              background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 6px rgba(37,99,235,0.3)',
+              color: '#ffffff'
+            }}>
+              <LayoutDashboard size={18} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h2 className="admin-logo-text" style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>GoBill</h2>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, background: '#1e3a8a', color: '#93c5fd', padding: '1px 6px', borderRadius: 4, border: '1px solid #2563eb' }}>ADMIN</span>
+              </div>
+              <span style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>Command Center</span>
+            </div>
           </div>
         </div>
         
         <div className="admin-header-right">
-          <button onClick={handleLogout} className="admin-logout-btn">
-            <LogOut size={18} />
-            <span className="d-none d-sm-inline">Logout</span>
+          <button onClick={handleLogout} className="admin-logout-btn" title="Sign out of Admin">
+            <LogOut size={16} />
+            <span className="d-none d-sm-inline">Sign Out</span>
           </button>
         </div>
       </header>
@@ -80,10 +102,15 @@ const AdminLayout = () => {
                 className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
               >
                 {link.icon}
-                {link.label}
+                <span>{link.label}</span>
               </NavLink>
             ))}
           </nav>
+          
+          <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.75rem' }}>
+            <ShieldCheck size={16} color="#10b981" />
+            <span>Admin Secure Session</span>
+          </div>
         </aside>
 
         {/* Main Content */}

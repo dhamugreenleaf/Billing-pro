@@ -1,6 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import './variables.css';
 @import './responsive.css';
+@import './BillingMobile.css';
 @import './toast.css';
 
 * {
@@ -9,20 +10,70 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-main);
-  background-color: var(--color-bg-main);
+  background-color: var(--color-bg-main, #e8f5ec);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.15) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.13) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(13, 148, 136, 0.11) 0px, transparent 60%);
+  background-attachment: fixed;
   color: var(--color-text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Dark Mode Body Background */
+[data-theme="dark"] body {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 45%),
+    radial-gradient(at 100% 0%, rgba(5, 150, 105, 0.08) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  border: 1px solid var(--color-bg-main);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #183e32;
+  border-color: #0c241c;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  line-height: 1.2;
+  font-weight: 700;
+  line-height: 1.25;
   margin-bottom: var(--spacing-sm);
-  letter-spacing: -0.02em; /* Slightly tighter tracking for premium feel */
+  letter-spacing: -0.025em;
+  color: var(--color-text-main);
 }
 
 p {
@@ -33,43 +84,55 @@ p {
 a {
   color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all var(--transition-fast);
 }
 
 a:hover {
   color: var(--color-primary-hover);
 }
 
+[data-theme="dark"] a:hover {
+  color: #34d399;
+}
+
 button {
   font-family: inherit;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
 button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
 input, textarea, select {
   font-family: inherit;
-  transition: all 0.2s ease;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
 }
 
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--color-border-focus) !important;
-  box-shadow: var(--shadow-focus);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.22) !important;
 }
 
-/* Utilities for Layout */
+[data-theme="dark"] input:focus, 
+[data-theme="dark"] textarea:focus, 
+[data-theme="dark"] select:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Layout Utilities */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 var(--spacing-md);
 }
@@ -77,15 +140,16 @@ input:focus, textarea:focus, select:focus {
 .card {
   background-color: var(--color-bg-card);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   padding: var(--spacing-xl);
   border: 1px solid var(--color-border);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal);
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-floating);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
 }
 
 .text-center { text-align: center; }
@@ -93,22 +157,371 @@ input:focus, textarea:focus, select:focus {
 .mt-4 { margin-top: var(--spacing-md); }
 .mb-4 { margin-bottom: var(--spacing-md); }
 
-/* Print Styles */
+/* Common Pill / Badge Utility */
+.badge-pro {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-success-light);
+  color: var(--color-success-hover);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-warning-light);
+  color: var(--color-warning-hover);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--color-error-light);
+  color: var(--color-error-hover);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+/* Glassmorphism Surface Utility */
+.glass-surface {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   A4 FULL-PAGE PRINT & PDF GENERATION ENGINE
+   Guarantees 100% full-width A4 print & PDF without cutting
+   ========================================================= */
+@page {
+  size: A4 portrait;
+  margin: 6mm 8mm;
+}
+
 @media print {
-  body {
-    background-color: #fff !important;
-  }
-  .no-print {
-    display: none !important;
-  }
-  main {
-    padding-bottom: 0 !important;
-  }
-  .invoice-print-container {
-    box-shadow: none !important;
+  html, body, #root, .main-layout-root, .main-content-body, .billing-mobile-page, .billing-inner-wrap {
     width: 100% !important;
     max-width: 100% !important;
+    min-width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    background-image: none !important;
+    overflow: visible !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  header,
+  nav,
+  .main-header,
+  .main-mobile-nav,
+  .main-mobile-nav-fab,
+  .billing-mobile-header,
+  .sticky-billing-footer,
+  .digital-ticket-wrapper,
+  .summary-sheet-overlay,
+  .hide-on-print,
+  .mobile-a4-guide-pill {
+    display: none !important;
+  }
+
+  /* Force print-only wrapper to appear in print even if ticket mode was viewed */
+  .invoice-overflow-wrapper {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .invoice-print-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  /* Force all templates to stretch 100% full-width on A4 paper */
+  .invoice-print-container > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    page-break-after: auto !important;
+  }
+
+  .invoice-print-container table {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    page-break-inside: auto !important;
+    border-collapse: collapse !important;
+  }
+
+  .invoice-print-container thead {
+    display: table-header-group !important;
+  }
+
+  .invoice-print-container tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  .invoice-print-container td,
+  .invoice-print-container th {
+    word-break: break-word !important;
+  }
+
+  .gobill-pdf-footer {
+    display: flex !important;
+    page-break-inside: avoid !important;
   }
 }
+
+.d-none-screen {
+  display: none !important;
+}
+
+@media print {
+  .d-none-screen {
+    display: block !important;
+  }
+}
+
+/* =========================================================
+   UNIVERSAL THEME COMPATIBILITY RULES
+   Guarantees crystal-clear text, icons & card contrast
+   ========================================================= */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .setup-card,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .settings-card-item,
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .plan-card-premium,
+[data-theme="dark"] .mobile-bill-card,
+[data-theme="dark"] .summary-sheet-card {
+  background-color: var(--color-bg-card) !important;
+  color: var(--color-text-main) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .settings-card-item:hover,
+[data-theme="dark"] .product-card:hover,
+[data-theme="dark"] .plan-card-premium:hover {
+  background-color: var(--color-bg-card-hover) !important;
+  border-color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] .card-header,
+[data-theme="dark"] .setup-header {
+  border-bottom-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6,
+[data-theme="dark"] .page-title,
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .settings-title,
+[data-theme="dark"] .setting-label,
+[data-theme="dark"] .form-section-title {
+  color: var(--color-text-main) !important;
+}
+
+[data-theme="dark"] .page-subtitle,
+[data-theme="dark"] .settings-subtitle,
+[data-theme="dark"] .card-desc,
+[data-theme="dark"] .setting-desc,
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .form-label {
+  color: var(--color-text-muted) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .form-control {
+  background-color: var(--color-bg-input) !important;
+  color: var(--color-text-main) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--color-text-subtle) !important;
+}
+
+[data-theme="dark"] .back-btn {
+  background: var(--color-bg-subtle) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-main) !important;
+}
+
+[data-theme="dark"] .back-btn:hover {
+  background: var(--color-bg-card-hover) !important;
+  color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] table thead tr,
+[data-theme="dark"] table th {
+  background-color: var(--color-bg-subtle) !important;
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] table tbody tr {
+  border-bottom-color: var(--color-border-subtle) !important;
+}
+
+[data-theme="dark"] table tbody td {
+  color: var(--color-text-main) !important;
+  border-color: var(--color-border-subtle) !important;
+}
+
+[data-theme="dark"] table tbody tr:nth-child(even) {
+  background-color: var(--color-bg-card) !important;
+}
+
+[data-theme="dark"] table tbody tr:nth-child(odd) {
+  background-color: var(--color-bg-subtle) !important;
+}
+
+[data-theme="dark"] table tbody tr:hover {
+  background-color: var(--color-bg-card-hover) !important;
+}
+
+[data-theme="dark"] .setting-icon-wrapper {
+  background: rgba(99, 102, 241, 0.22) !important;
+  color: #818cf8 !important;
+}
+
+[data-theme="dark"] .current-rate-box {
+  background: var(--color-bg-subtle) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .main-modal-box,
+[data-theme="dark"] .main-profile-dropdown {
+  background-color: var(--color-bg-card) !important;
+  color: var(--color-text-main) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] .modal-title,
+[data-theme="dark"] .main-modal-title {
+  color: var(--color-text-main) !important;
+}
+
+[data-theme="dark"] .modal-desc,
+[data-theme="dark"] .modal-subtitle,
+[data-theme="dark"] .main-modal-desc {
+  color: var(--color-text-muted) !important;
+}
+
+/* Ensure the Printable A4 Invoice Document always retains authentic, high-contrast print typography */
+[data-theme="dark"] .invoice-print-container,
+[data-theme="dark"] .invoice-print-container table {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .invoice-print-container table thead tr,
+[data-theme="dark"] .invoice-print-container table th {
+  background-color: revert !important;
+  color: revert !important;
+  border-color: revert !important;
+}
+
+[data-theme="dark"] .invoice-print-container table tbody tr,
+[data-theme="dark"] .invoice-print-container table tbody tr:nth-child(even),
+[data-theme="dark"] .invoice-print-container table tbody tr:nth-child(odd) {
+  background-color: revert !important;
+}
+
+[data-theme="dark"] .invoice-print-container table tbody tr:hover {
+  background-color: revert !important;
+}
+
+[data-theme="dark"] .invoice-print-container table td,
+[data-theme="dark"] .invoice-print-container table tbody td {
+  color: revert !important;
+  border-color: revert !important;
+}
+
+[data-theme="dark"] .invoice-print-container h1,
+[data-theme="dark"] .invoice-print-container h2,
+[data-theme="dark"] .invoice-print-container h3,
+[data-theme="dark"] .invoice-print-container h4,
+[data-theme="dark"] .invoice-print-container div,
+[data-theme="dark"] .invoice-print-container p,
+[data-theme="dark"] .invoice-print-container span {
+  color: revert !important;
+}
+
+

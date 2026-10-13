@@ -15,9 +15,9 @@ The application uses the **MSG91 Secure OTP Web SDK** strictly on the frontend (
 ## 2. Configuration & Credentials
 
 ### Frontend (React)
-The frontend requires the **Widget ID** and **Token Auth**. These are safe to expose in the frontend code as they only initialize the widget.
-- **Widget ID**: `3668716a4864373039323834`
-- **Token Auth**: `560885T2kcvOrbS46a82e3fcP1`
+The frontend requires the **Widget ID** and **Token Auth**. These are configured via environment variables `VITE_MSG91_WIDGET_ID` and `VITE_MSG91_TOKEN_AUTH`.
+- **Widget ID**: `<YOUR_MSG91_WIDGET_ID>`
+- **Token Auth**: `<YOUR_MSG91_TOKEN_AUTH>`
 
 ### Backend (Node.js)
 The backend uses the **AuthKey**. This must remain secret and is stored in the `.env` file.
@@ -36,8 +36,8 @@ It checks for `window.initSendOTP` every 500ms. Once found, it marks the applica
 When the user enters their 10-digit mobile number and clicks "Continue", the widget is initialized:
 ```javascript
 window.configuration = {
-  widgetId: "3668716a4864373039323834",
-  tokenAuth: "560885T2kcvOrbS46a82e3fcP1",
+  widgetId: import.meta.env.VITE_MSG91_WIDGET_ID,
+  tokenAuth: import.meta.env.VITE_MSG91_TOKEN_AUTH,
   identifier: "919876543210",
   exposeMethods: true, // MUST be a boolean, NOT a string "true"
   success: async (data) => {

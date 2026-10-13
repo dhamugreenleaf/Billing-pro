@@ -19,7 +19,7 @@ const Settings = sequelize.define('Settings', {
   },
   default_invoice_template: {
     type: DataTypes.STRING,
-    defaultValue: 'normal',
+    defaultValue: 'standard',
   },
   default_payment_method: {
     type: DataTypes.STRING,

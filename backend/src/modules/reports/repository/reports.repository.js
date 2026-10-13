@@ -56,10 +56,33 @@ export const getDashboardStats = async (company_id, fromDateStr, toDateStr, cust
     where: { ...statsFilters, created_at: { [Op.gte]: startOfMonth } }
   });
 
-  // Pending Amount (Unpaid invoices)
-  const pendingAmount = await Invoice.sum('total_amount', {
-    where: { ...statsFilters, status: { [Op.not]: 'paid' } }
+  // Pending Amount: sum of (total_amount - paid_amount) for non-fully-paid invoices.
+  // Uses payment_status and status (the authoritative payment state).
+  // Handles: unpaid (full total is pending), partial (only remaining balance is pending),
+  // paid (excluded - ₹0 pending). Supports customer filtering when searching by customer.
+  let pendingQuery = `
+    SELECT COALESCE(SUM(GREATEST(CAST(total_amount AS NUMERIC) - CAST(paid_amount AS NUMERIC), 0)), 0) AS pending
+    FROM invoices
+    WHERE company_id = :company_id
+      AND payment_status != 'paid'
+      AND status != 'paid'
+  `;
+  const pendingReplacements = { company_id };
+
+  if (customerName) {
+    pendingQuery += ` AND customer_name ILIKE :customerName`;
+    pendingReplacements.customerName = `%${customerName}%`;
+  }
+  if (customerMobile) {
+    pendingQuery += ` AND customer_mobile LIKE :customerMobile`;
+    pendingReplacements.customerMobile = `%${customerMobile}%`;
+  }
+
+  const pendingResult = await sequelize.query(pendingQuery, {
+    replacements: pendingReplacements,
+    type: sequelize.QueryTypes.SELECT
   });
+  const pendingAmount = pendingResult && pendingResult[0] ? parseFloat(pendingResult[0].pending) || 0 : 0;
 
   // Fetch invoices for the selected day/search
   const invoices = await Invoice.findAll({

@@ -24,15 +24,31 @@ const Company = sequelize.define('Company', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  business_type: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   phone: {
-    type: DataTypes.STRING(15),
+    type: DataTypes.STRING(25),
+    allowNull: true,
+  },
+  additionalPhone: {
+    type: DataTypes.STRING(25),
     allowNull: true,
   },
   email: {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  website: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   address: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  address_line_2: {
     type: DataTypes.STRING,
     allowNull: true,
   },
@@ -48,12 +64,28 @@ const Company = sequelize.define('Company', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  country: {
+    type: DataTypes.STRING,
+    defaultValue: 'India',
+  },
   gst_number: {
     type: DataTypes.STRING,
     allowNull: true,
   },
-  logo: {
+  pan: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  registrationType: {
+    type: DataTypes.STRING,
+    defaultValue: 'Regular',
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  logo: {
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   invoice_prefix: {

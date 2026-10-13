@@ -156,7 +156,7 @@ const Reports = () => {
         <div className="print-only" style={{ marginBottom: '30px', borderBottom: '2px solid var(--color-primary)', paddingBottom: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <h1 style={{ color: 'var(--color-primary)', margin: '0 0 8px 0', fontSize: '28px', fontWeight: 'bold' }}>{stats?.company?.company_name || 'Billing Pro'}</h1>
+              <h1 style={{ color: 'var(--color-primary)', margin: '0 0 8px 0', fontSize: '28px', fontWeight: 'bold' }}>{stats?.company?.company_name || 'GoBill'}</h1>
               <p style={{ margin: '0 0 4px 0', color: '#4b5563', fontSize: '14px' }}>{stats?.company?.address || 'Your Business Address'}</p>
               <p style={{ margin: 0, color: '#4b5563', fontSize: '14px' }}>Phone: {stats?.company?.mobile_number || 'N/A'}</p>
             </div>
@@ -269,13 +269,12 @@ const Reports = () => {
         )}
 
         <h3 className="no-print" style={{ marginTop: 'var(--spacing-xl)', marginBottom: 'var(--spacing-md)' }}>Recent Invoices</h3>
-      {(() => {
-        return invoices.length === 0 ? (
-          <div className="card text-center text-muted" style={{ padding: 'var(--spacing-xl)' }}>
-            No invoices match the selected date range or customer filters.
-          </div>
-        ) : (
-          <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+      {invoices.length === 0 ? (
+        <div className="card text-center text-muted" style={{ padding: 'var(--spacing-xl)' }}>
+          No invoices match the selected date range or customer filters.
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 'var(--font-size-sm)' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--color-bg-input)', borderBottom: '1px solid var(--color-border)' }}>
@@ -291,7 +290,7 @@ const Reports = () => {
             </thead>
             <tbody>
               {invoices.map((bill, index) => (
-                <tr key={bill.id} style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
+                <tr key={bill.id} style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: index % 2 === 0 ? 'var(--color-bg-card, #ffffff)' : 'var(--color-bg-subtle, #f9fafb)' }}>
                   <td style={{ padding: '12px var(--spacing-md)', whiteSpace: 'nowrap', fontWeight: '500', color: 'var(--color-primary)' }}>{bill.invoice_number}</td>
                   <td style={{ padding: '12px var(--spacing-md)', whiteSpace: 'nowrap', color: 'var(--color-text-muted)' }}>{new Date(bill.created_at).toLocaleDateString()}</td>
                   <td style={{ padding: '12px var(--spacing-md)', whiteSpace: 'nowrap' }}>
@@ -327,8 +326,7 @@ const Reports = () => {
             </tbody>
           </table>
         </div>
-        );
-      })}
+      )}
       </div>
       </>
       )}

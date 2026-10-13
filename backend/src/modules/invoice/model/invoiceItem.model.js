@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../../config/db.js';
 import Invoice from './invoice.model.js';
+import Product from '../../product/model/product.model.js';
 
 const InvoiceItem = sequelize.define('InvoiceItem', {
   id: {
@@ -16,6 +17,15 @@ const InvoiceItem = sequelize.define('InvoiceItem', {
       key: 'id'
     },
     onDelete: 'CASCADE'
+  },
+  product_id: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references: {
+      model: Product,
+      key: 'id'
+    },
+    onDelete: 'SET NULL'
   },
   item_name: {
     type: DataTypes.STRING,
@@ -59,4 +69,8 @@ const InvoiceItem = sequelize.define('InvoiceItem', {
 Invoice.hasMany(InvoiceItem, { foreignKey: 'invoice_id', as: 'items' });
 InvoiceItem.belongsTo(Invoice, { foreignKey: 'invoice_id' });
 
+Product.hasMany(InvoiceItem, { foreignKey: 'product_id', as: 'invoice_items' });
+InvoiceItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
 export default InvoiceItem;
+

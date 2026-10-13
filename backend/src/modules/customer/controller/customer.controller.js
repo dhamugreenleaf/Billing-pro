@@ -1,4 +1,5 @@
 import * as customerService from '../services/customer.service.js';
+import * as customerRepo from '../repository/customer.repository.js';
 import * as companyService from '../../company/services/company.service.js';
 import { sendSuccess, sendError } from '../../../utils/response.js';
 import { createCustomerSchema } from '../zod/customer.zod.js';
@@ -26,12 +27,17 @@ export const createCustomer = async (req, res, next) => {
 
 export const getAllCustomers = async (req, res, next) => {
   try {
-    const company_id = await getCompanyId(req.user.id);
+    let company_id;
+    try {
+      company_id = await getCompanyId(req.user.id);
+    } catch {
+      return sendSuccess(res, 'Customers retrieved successfully', []);
+    }
     const customers = await customerService.getCustomers(company_id);
     return sendSuccess(res, 'Customers retrieved successfully', customers);
   } catch (error) {
-    if (error.message.includes('Company not found')) {
-      return sendError(res, error.message, [], 400);
+    if (error.message && error.message.includes('Company not found')) {
+      return sendSuccess(res, 'Customers retrieved successfully', []);
     }
     next(error);
   }
@@ -40,17 +46,26 @@ export const getAllCustomers = async (req, res, next) => {
 export const getCustomerByMobile = async (req, res, next) => {
   try {
     const { mobile } = req.params;
-    const company_id = await getCompanyId(req.user.id);
+    let company_id;
+    try {
+      company_id = await getCompanyId(req.user.id);
+    } catch {
+      return sendSuccess(res, 'Customer not found', null);
+    }
     const customer = await customerService.getCustomerByMobile(company_id, mobile);
     
     if (!customer) {
-      return res.status(404).json({ success: false, message: 'Customer not found' });
+      return sendSuccess(res, 'Customer not found', null);
     }
     
-    return sendSuccess(res, 'Customer retrieved successfully', customer);
+    const outstanding = await customerRepo.getCustomerOutstandingBalance(company_id, mobile);
+    const customerData = customer.toJSON ? customer.toJSON() : { ...customer };
+    customerData.outstanding_balance = outstanding;
+
+    return sendSuccess(res, 'Customer retrieved successfully', customerData);
   } catch (error) {
-    if (error.message.includes('Company not found')) {
-      return sendError(res, error.message, [], 400);
+    if (error.message && error.message.includes('Company not found')) {
+      return sendSuccess(res, 'Customer not found', null);
     }
     next(error);
   }

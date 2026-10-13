@@ -87,7 +87,7 @@ function App() {
         {/* Public Auth Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
-          <Route path="/test-login" element={<TestLogin />} />
+          {import.meta.env.DEV && <Route path="/test-login" element={<TestLogin />} />}
           <Route path="/admin-login" element={<AdminLogin />} />
         </Route>
 

@@ -21,6 +21,14 @@ export const InvoiceService = {
     return await api.delete(`/invoices/${id}`);
   },
 
+  recordPayment: async (id, paymentData) => {
+    return await api.post(`/invoices/${id}/payment`, paymentData);
+  },
+
+  getPayments: async (id) => {
+    return await api.get(`/invoices/${id}/payments`);
+  },
+
   formatCurrency: (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',

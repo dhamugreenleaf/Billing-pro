@@ -5,6 +5,10 @@ import { store } from './redux/store';
 import './styles/global.css';
 import App from './App.jsx';
 
+// Initialize theme
+const savedTheme = localStorage.getItem('billing_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>

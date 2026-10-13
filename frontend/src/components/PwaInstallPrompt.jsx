@@ -80,56 +80,8 @@ const PwaInstallPrompt = () => {
   const isLoginPage = location.pathname === '/login';
 
   if (!isLoginPage) {
-    return (
-      <div style={{ position: 'fixed', bottom: '80px', right: '20px', zIndex: 9999 }}>
-        {isIOS && showIosTooltip && (
-          <div style={{
-            position: 'absolute',
-            bottom: '56px',
-            right: '0',
-            backgroundColor: '#ffffff',
-            padding: '12px',
-            borderRadius: '12px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e2e8f0',
-            width: '240px',
-            fontSize: '13px',
-            color: '#334155',
-            lineHeight: '1.4'
-          }}>
-            <button 
-              onClick={() => setShowIosTooltip(false)} 
-              style={{ position: 'absolute', top: '4px', right: '4px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-            >
-              <X size={14} />
-            </button>
-            <div style={{ fontWeight: '600', marginBottom: '4px', color: '#0f172a' }}>Install GoBill</div>
-            Tap Share <Share size={14} style={{ verticalAlign: 'middle', color: '#3b82f6', margin: '0 2px' }} /> then <strong>Add to Home Screen</strong>
-          </div>
-        )}
-        <button
-          onClick={() => isIOS ? setShowIosTooltip(!showIosTooltip) : handleInstallClick()}
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '24px',
-            backgroundColor: '#2563eb',
-            color: 'white',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)',
-            cursor: 'pointer',
-            transition: 'transform 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <Download size={22} />
-        </button>
-      </div>
-    );
+    // Do not show intrusive floating circular button over dashboard and mobile tools
+    return null;
   }
 
   // Neat, small banner style

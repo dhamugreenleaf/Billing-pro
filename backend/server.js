@@ -16,7 +16,10 @@ import adminRoutes from './src/modules/admin/admin.routes.js';
 import subscriptionRoutes from './src/modules/subscription/subscription.routes.js';
 import productRoutes from './src/modules/product/routes/product.routes.js';
 
+import { validateEnv } from './src/config/env.js';
+
 dotenv.config();
+validateEnv();
 
 const app = express();
 
@@ -24,7 +27,15 @@ app.use(cors({
   origin: ['https://gobill.gldatacenter.com', 'http://localhost:5173', 'http://192.168.1.19:5173'],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf, encoding) => {
+    if (buf && buf.length) {
+      req.rawBody = buf.toString(encoding || 'utf8');
+    }
+  }
+}));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);

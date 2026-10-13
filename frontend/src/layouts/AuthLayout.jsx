@@ -1,30 +1,50 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
+import { Receipt } from 'lucide-react';
 import useSEO from '../utils/useSEO';
+import './AuthLayout.css';
 
 const AuthLayout = () => {
   useSEO({
     title: 'Login | GoBill',
-    description: 'Login to your GoBill billing software account to manage your invoices and customers.',
+    description: 'Login to your GoBill account to manage your invoices, bills, and customers.',
     noindex: true
   });
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      backgroundColor: 'var(--color-bg-main)',
-      padding: 'var(--spacing-md)'
-    }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ color: 'var(--color-primary)', margin: 0, fontSize: '2rem' }}>Billing Pro</h1>
-          <p style={{ color: 'var(--color-text-muted)', margin: '0.5rem 0 0 0' }}>Manage your business effortlessly</p>
+    <div className="auth-layout-wrapper">
+      {/* Top Header */}
+      <header className="auth-header">
+        <Link to="/" className="auth-brand-badge">
+          <div className="auth-brand-icon">
+            <Receipt size={22} />
+          </div>
+          <span className="auth-brand-name">GoBill</span>
+        </Link>
+      </header>
+
+      {/* Center Auth Card Body */}
+      <main className="auth-container">
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <h1 className="auth-card-title">Welcome Back</h1>
+            <p className="auth-card-subtitle">Sign in to manage your bills and invoices</p>
+          </div>
+          <Outlet />
         </div>
-        <Outlet />
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="auth-footer">
+        <p className="auth-footer-text">
+          &copy; {new Date().getFullYear()} GoBill Technologies. Secure GST POS Platform.
+        </p>
+        <div className="auth-footer-links">
+          <Link to="/gst-billing-software">GST Features</Link>
+          <Link to="/invoice-formats">Invoice Formats</Link>
+          <Link to="/retail-billing-software">Retail Billing</Link>
+        </div>
+      </footer>
     </div>
   );
 };

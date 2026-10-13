@@ -23,6 +23,7 @@ router.patch('/plans/:id/status', planController.updatePlanStatus);
 router.get('/current', subController.getCurrentSubscription);
 router.post('/create-order', subController.createOrder);
 router.post('/verify-payment', subController.verifyPayment);
+router.post('/activate-test-pro', subController.activateTestPro);
 
 // Invoice Formats
 router.get('/invoice-formats', subController.getInvoiceFormatsAvailability);

@@ -67,7 +67,8 @@ const GstSettings = () => {
       <style>{`
         .gst-container {
           min-height: 100vh;
-          background: #f8fafc;
+          background: var(--color-bg-main, #f8fafc);
+          color: var(--color-text-main, #0f172a);
           font-family: 'Inter', sans-serif;
           padding: 2rem 1rem 6rem 1rem;
         }
@@ -85,41 +86,41 @@ const GstSettings = () => {
         }
 
         .back-btn {
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
+          background: var(--color-bg-card, #ffffff);
+          border: 1px solid var(--color-border, #e2e8f0);
           border-radius: 8px;
           width: 40px;
           height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #475569;
+          color: var(--color-text-muted, #475569);
           cursor: pointer;
           transition: all 0.2s;
         }
         
         .back-btn:hover {
-          background: #f1f5f9;
-          color: #0f172a;
+          background: var(--color-bg-subtle, #f1f5f9);
+          color: var(--color-text-main, #0f172a);
         }
 
         .page-title {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #0f172a;
+          color: var(--color-text-main, #0f172a);
           margin: 0;
         }
 
         .page-subtitle {
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           font-size: 0.95rem;
           margin: 0.25rem 0 0 0;
         }
 
         .settings-card {
-          background: #ffffff;
+          background: var(--color-bg-card, #ffffff);
           border-radius: 12px;
-          border: 1px solid #e2e8f0;
+          border: 1px solid var(--color-border, #e2e8f0);
           overflow: hidden;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
           margin-bottom: 2rem;
@@ -127,18 +128,18 @@ const GstSettings = () => {
 
         .card-header {
           padding: 1.5rem 2rem;
-          border-bottom: 1px solid #e2e8f0;
+          border-bottom: 1px solid var(--color-border, #e2e8f0);
         }
 
         .card-title {
           font-size: 1.125rem;
           font-weight: 600;
-          color: #0f172a;
+          color: var(--color-text-main, #0f172a);
           margin: 0 0 0.5rem 0;
         }
 
         .card-desc {
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           font-size: 0.95rem;
           margin: 0;
           line-height: 1.5;
@@ -149,8 +150,8 @@ const GstSettings = () => {
         }
 
         .current-rate-box {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
+          background: var(--color-bg-subtle, #f8fafc);
+          border: 1px solid var(--color-border, #e2e8f0);
           border-radius: 8px;
           padding: 1.25rem;
           margin-bottom: 1rem;
@@ -159,14 +160,14 @@ const GstSettings = () => {
         .current-rate-label {
           font-size: 0.875rem;
           font-weight: 600;
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           margin-bottom: 0.5rem;
         }
 
         .current-rate-value {
           font-size: 2rem;
           font-weight: 700;
-          color: #2563eb;
+          color: var(--color-primary, #2563eb);
         }
 
         .rates-grid {
@@ -176,54 +177,54 @@ const GstSettings = () => {
         }
 
         .rate-card {
-          border: 2px solid #e2e8f0;
+          border: 2px solid var(--color-border, #e2e8f0);
           border-radius: 8px;
           padding: 1.25rem 1rem;
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 0.5rem;
-          background: #ffffff;
+          background: var(--color-bg-card, #ffffff);
           transition: all 0.2s;
           cursor: pointer;
           position: relative;
         }
 
         .rate-card:hover {
-          border-color: #cbd5e1;
-          background: #f8fafc;
+          border-color: var(--color-primary-light, #cbd5e1);
+          background: var(--color-bg-subtle, #f8fafc);
         }
 
         .rate-card.selected {
-          background: #eff6ff;
-          border-color: #2563eb;
+          background: rgba(37, 99, 235, 0.12);
+          border-color: var(--color-primary, #2563eb);
         }
 
         .rate-value {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #0f172a;
+          color: var(--color-text-main, #0f172a);
         }
 
         .rate-card.selected .rate-value {
-          color: #1d4ed8;
+          color: var(--color-primary, #2563eb);
         }
 
         .rate-status {
           font-size: 0.875rem;
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           font-weight: 500;
         }
 
         .rate-card.selected .rate-status {
-          color: #2563eb;
+          color: var(--color-primary, #2563eb);
         }
 
         .checkmark-icon {
           position: absolute;
           top: 10px;
           right: 10px;
-          color: #2563eb;
+          color: var(--color-primary, #2563eb);
           display: none;
         }
 
@@ -242,7 +243,7 @@ const GstSettings = () => {
           font-weight: 600;
           cursor: pointer;
           border: none;
-          background: #2563eb;
+          background: var(--color-primary, #2563eb);
           color: #ffffff;
           display: inline-flex;
           align-items: center;
@@ -260,18 +261,19 @@ const GstSettings = () => {
         }
 
         .btn-primary:hover {
-          background: #1d4ed8;
+          background: var(--color-primary-dark, #1d4ed8);
         }
 
         .btn-primary:disabled {
-          background: #93c5fd;
+          background: var(--color-border, #93c5fd);
           cursor: not-allowed;
+          opacity: 0.6;
         }
 
         .success-toast {
-          background: #f0fdf4;
-          border: 1px solid #bbf7d0;
-          color: #16a34a;
+          background: rgba(16, 185, 129, 0.12);
+          border: 1px solid #10b981;
+          color: #10b981;
           padding: 1rem;
           border-radius: 8px;
           margin-bottom: 1.5rem;
@@ -284,10 +286,10 @@ const GstSettings = () => {
         .empty-state {
           text-align: center;
           padding: 2rem;
-          color: #64748b;
-          background: #f8fafc;
+          color: var(--color-text-muted, #64748b);
+          background: var(--color-bg-subtle, #f8fafc);
           border-radius: 8px;
-          border: 1px dashed #cbd5e1;
+          border: 1px dashed var(--color-border, #cbd5e1);
         }
       `}</style>
 

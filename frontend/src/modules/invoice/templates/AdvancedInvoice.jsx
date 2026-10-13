@@ -4,11 +4,21 @@ import { numberToWords } from '../../../utils/numberToWords';
 const AdvancedInvoice = ({ invoice }) => {
   if (!invoice) return null;
 
-  const { Company, items } = invoice;
+  const { Company } = invoice;
+  const items = (invoice.items && invoice.items.length > 0) ? invoice.items : (invoice.InvoiceItems || []);
   const companyName = Company?.company_name || 'Your Company Name';
-  const companyAddress = Company?.address || 'Address Line 1, City, State';
+  const ownerName = Company?.owner_name || '';
+  const addressParts = [
+    Company?.address,
+    Company?.address_line_2,
+    Company?.city,
+    Company?.state ? (Company?.pincode ? `${Company.state} - ${Company.pincode}` : Company.state) : (Company?.pincode ? `PIN: ${Company.pincode}` : '')
+  ].filter(Boolean);
+  const companyAddress = addressParts.length > 0 ? addressParts.join(', ') : (Company?.address || 'Address Line 1, City, State');
   const companyGst = Company?.gst_number || 'Unregistered';
+  const companyPan = Company?.pan || '';
   const companyEmail = Company?.email || '';
+  const companyPhone = [Company?.phone, Company?.additionalPhone].filter(Boolean).join(', ');
   
   const buyerName = invoice.customer_name || 'Cash Customer';
   const buyerMobile = invoice.customer_mobile || '';
@@ -20,15 +30,29 @@ const AdvancedInvoice = ({ invoice }) => {
 
   const taxAmount = Number(invoice.tax_amount) || 0;
   const totalAmount = Number(invoice.total_amount) || 0;
-  const subtotal = Number(invoice.subtotal) || 0;
+  const subtotal = Number(invoice.subtotal || (totalAmount - taxAmount)) || 0;
   
-  const displayItems = items && items.length > 0 ? items : [{
-    description: invoice.description,
+  const displayItems = (items && items.length > 0) ? items.map((item, idx) => {
+    const qty = Number(item.quantity) || 1;
+    const price = Number(item.unit_price !== undefined && item.unit_price !== '' 
+      ? item.unit_price 
+      : (item.amount ? Number(item.amount) / qty : (item.rate || 0))) || 0;
+    const lineTotal = Number(item.total !== undefined && item.total !== '' ? item.total : (qty * price)) || 0;
+    return {
+      description: item.description || item.item_name || 'Item',
+      hsn: item.hsn || item.hsn_sac || item.product_code || '9983',
+      quantity: qty,
+      unit: item.unit || 'Nos',
+      unit_price: price,
+      total: lineTotal
+    };
+  }) : [{
+    description: invoice.description || 'General Item / Sale',
     hsn: '9983',
     quantity: 1,
     unit: 'Nos',
-    rate: subtotal,
-    amount: subtotal
+    unit_price: subtotal,
+    total: subtotal
   }];
 
   return (
@@ -55,9 +79,12 @@ const AdvancedInvoice = ({ invoice }) => {
             </div>
           )}
           <div>
-            <h1 style={{ margin: '0 0 5px 0', fontSize: '24px', color: '#111827' }}>{companyName}</h1>
-            <div style={{ color: '#6b7280', whiteSpace: 'pre-line', lineHeight: '1.5' }}>{companyAddress}</div>
-            <div style={{ color: '#6b7280', marginTop: '4px' }}>GSTIN: <span style={{ fontWeight: '500', color: '#374151' }}>{companyGst}</span></div>
+            <h1 style={{ margin: '0 0 4px 0', fontSize: '22px', color: '#111827' }}>{companyName}</h1>
+            {ownerName && <div style={{ fontSize: '12px', fontWeight: 600, color: '#4b5563', marginBottom: '2px' }}>Prop: {ownerName}</div>}
+            <div style={{ color: '#6b7280', whiteSpace: 'pre-line', lineHeight: '1.4' }}>{companyAddress}</div>
+            <div style={{ color: '#6b7280', marginTop: '4px' }}>GSTIN: <span style={{ fontWeight: '600', color: '#374151' }}>{companyGst}</span></div>
+            {companyPan && <div style={{ color: '#6b7280' }}>PAN: <span style={{ fontWeight: '600', color: '#374151' }}>{companyPan}</span></div>}
+            {companyPhone && <div style={{ color: '#6b7280' }}>Phone: {companyPhone}</div>}
             {companyEmail && <div style={{ color: '#6b7280' }}>Email: {companyEmail}</div>}
           </div>
         </div>
@@ -158,8 +185,8 @@ const AdvancedInvoice = ({ invoice }) => {
         </div>
       </div>
       
-      <div style={{ textAlign: 'center', marginTop: '40px', fontSize: '11px', color: '#9ca3af', borderTop: '1px solid #f3f4f6', paddingTop: '15px' }}>
-        This is a computer generated invoice and does not require a physical signature.
+      <div style={{ textAlign: 'center', marginTop: '40px', fontSize: '11px', color: '#6b7280', borderTop: '1px solid #f3f4f6', paddingTop: '15px' }}>
+        This is a computer generated invoice • Generated via <strong>GoBill</strong> (https://gobill.gldatacenter.com)
       </div>
     </div>
   );

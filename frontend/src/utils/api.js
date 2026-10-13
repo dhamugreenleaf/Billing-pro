@@ -28,6 +28,18 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      const publicPaths = ['/login', '/admin-login', '/terms', '/privacy', '/gst-billing', '/retail-billing', '/invoice-formats'];
+      if (import.meta.env.DEV) {
+        publicPaths.push('/test-login');
+      }
+      const isPublic = publicPaths.some((p) => window.location.pathname.startsWith(p));
+      if (!isPublic && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
     // Return a standardized error format
     const message = error.response?.data?.message || 'Something went wrong. Please try again.';
     const errors = error.response?.data?.errors || [];

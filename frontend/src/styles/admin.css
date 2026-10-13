@@ -9,8 +9,8 @@
 .admin-header {
   background-color: #0f172a; /* Dark navy */
   color: white;
-  padding: 0 1rem;
-  height: 60px;
+  padding: 0 1.25rem;
+  height: 64px;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -18,6 +18,7 @@
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #1e293b;
 }
 
 .admin-header-left {
@@ -103,12 +104,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.65rem 1.15rem;
+  margin: 0.15rem 0.65rem;
+  border-radius: 8px;
   color: #475569;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.2s;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
 }
 
 .admin-nav-link:hover {
@@ -119,7 +122,7 @@
 .admin-nav-link.active {
   background-color: #eff6ff;
   color: #2563eb;
-  border-right: 3px solid #2563eb;
+  font-weight: 700;
 }
 
 /* Main Content Area */

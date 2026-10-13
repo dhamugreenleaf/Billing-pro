@@ -1,10 +1,9 @@
 import { z } from 'zod';
 
-// Strict mobile number validation (Indian format as example, 10 digits)
+// Resilient mobile number validation (strips non-digits, requires 10-15 digits)
 const mobileNumberSchema = z.string()
-  .min(10, 'Mobile number must be at least 10 digits')
-  .max(15, 'Mobile number must not exceed 15 digits')
-  .regex(/^[0-9]+$/, 'Mobile number must contain only digits');
+  .transform(val => val.replace(/[^0-9]/g, ''))
+  .refine(val => val.length >= 10 && val.length <= 15, { message: 'Mobile number must be 10-15 digits' });
 
 // Name validation
 const nameSchema = z.string()
@@ -15,8 +14,15 @@ const nameSchema = z.string()
 export const verifyMsg91Schema = z.object({
   body: z.object({
     identifier: mobileNumberSchema,
-    accessToken: z.string().min(10, 'Invalid token'),
-    name: nameSchema.optional()
+    accessToken: z.string().min(4, 'Invalid OTP or token'),
+    name: nameSchema.optional(),
+    loginType: z.enum(['admin', 'user']).optional()
+  })
+});
+
+export const sendOtpSchema = z.object({
+  body: z.object({
+    identifier: mobileNumberSchema
   })
 });
 

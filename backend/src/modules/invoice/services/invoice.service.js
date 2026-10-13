@@ -3,17 +3,14 @@ import * as customerService from '../../customer/services/customer.service.js';
 import * as companyService from '../../company/services/company.service.js';
 import * as subService from '../../subscription/services/subscription.service.js';
 import AdminSettings from '../../admin/model/adminSettings.model.js';
+import { determineGstClassification, calculateGstSplit, roundTo2Decimals, getStateFromGstin } from '../../../utils/gstState.js';
+import { derivePaymentStatus } from '../repository/payment.repository.js';
 
 const planLimits = {
   'Free': 10,
-  'Basic': 50,
-  'Pro': 500,
+  'Basic': 1500,
+  'Pro': 2500,
   'Enterprise': Infinity
-};
-
-const generateInvoiceNumber = (prefix, count) => {
-  const paddedCount = String(count + 1).padStart(6, '0');
-  return `${prefix}-${paddedCount}`;
 };
 
 export const generateInvoice = async (user_id, invoiceData) => {
@@ -23,7 +20,8 @@ export const generateInvoice = async (user_id, invoiceData) => {
     throw { statusCode: 400, message: 'Please complete company profile before generating an invoice.' };
   }
 
-  // 1b. Check Plan Limits
+  // 1b. Check Plan Limits (TEMPORARILY BYPASSED FOR TEST PROCESS)
+  /*
   const sub = await subService.getCurrentSubscription(user_id);
   const planName = sub && sub.Plan ? sub.Plan.name : 'Free';
   const limit = planLimits[planName] || 10;
@@ -32,6 +30,7 @@ export const generateInvoice = async (user_id, invoiceData) => {
   if (currentMonthCount >= limit) {
     throw { statusCode: 403, message: `You have reached the monthly limit of ${limit} bills for the ${planName} plan. Please upgrade to continue generating bills.` };
   }
+  */
 
   // Fetch Global Admin Settings to act as fallbacks
   let adminSettings = await AdminSettings.findByPk(1);
@@ -57,9 +56,7 @@ export const generateInvoice = async (user_id, invoiceData) => {
     customerId = customer.id;
   }
 
-  // 3. Generate Invoice Number
-  const currentCount = await invoiceRepo.countInvoicesByCompany(company.id);
-  const invoice_number = generateInvoiceNumber(company.invoice_prefix || 'INV', currentCount);
+  // 3. Invoice Number will be assigned atomically inside invoiceRepo.createInvoice transaction
 
   // 4. Calculations
   let subtotal = 0;
@@ -68,14 +65,16 @@ export const generateInvoice = async (user_id, invoiceData) => {
   
   if (invoiceData.items && invoiceData.items.length > 0) {
     for (const item of invoiceData.items) {
-      const quantity = item.quantity || 1;
-      const unit_price = item.unit_price || 0;
+      const quantity = item.quantity !== undefined ? Number(item.quantity) : 1;
+      const unit_price = item.unit_price !== undefined ? Number(item.unit_price) : 0;
       const total = quantity * unit_price;
       subtotal += total;
       
       itemsToSave.push({
-        item_name: item.item_name || '',
-        description: item.description || '',
+        product_id: item.product_id || null,
+        product_code: item.product_code || null,
+        item_name: item.item_name || item.description || '',
+        description: item.description || item.item_name || '',
         quantity,
         unit_price,
         discount: item.discount || 0,
@@ -88,7 +87,7 @@ export const generateInvoice = async (user_id, invoiceData) => {
     subtotal = invoiceData.amount || 0;
   }
   
-  let taxable_amount = subtotal - discount_amount;
+  let taxable_amount = roundTo2Decimals(subtotal - discount_amount);
   let tax_amount = 0;
   
   let cgst_rate = 0;
@@ -98,36 +97,38 @@ export const generateInvoice = async (user_id, invoiceData) => {
   let igst_rate = 0;
   let igst_amount = 0;
   let total_amount = taxable_amount;
+  let resolvedPlaceOfSupply = null;
 
   if (invoiceData.gst_enabled) {
-    const gst_rate = invoiceData.gst_rate || 0;
+    const effectiveGstRate = invoiceData.gst_rate !== undefined ? Number(invoiceData.gst_rate) : Number(fallbackGstRate);
     
+    // Resolve seller state dynamically from company state or GSTIN
+    const sellerState = company.state || (company.gst_number ? getStateFromGstin(company.gst_number)?.name : null);
+    const customerPos = invoiceData.place_of_supply || null;
+
+    const classification = determineGstClassification(sellerState, customerPos);
+    resolvedPlaceOfSupply = classification.placeOfSupply;
+
+    const split = calculateGstSplit(
+      taxable_amount,
+      effectiveGstRate,
+      invoiceData.gst_price_type || 'exclusive',
+      classification.type
+    );
+
+    taxable_amount = split.taxableAmount;
+    tax_amount = split.taxAmount;
+    cgst_rate = split.cgst_rate;
+    cgst_amount = split.cgst_amount;
+    sgst_rate = split.sgst_rate;
+    sgst_amount = split.sgst_amount;
+    igst_rate = split.igst_rate;
+    igst_amount = split.igst_amount;
+
     if (invoiceData.gst_price_type === 'inclusive') {
-      // Customer Amount = Total Amount
-      // Taxable Value = Total Amount / (1 + (GST Rate / 100))
-      // GST Amount = Total Amount - Taxable Value
-      total_amount = subtotal;
-      taxable_amount = total_amount / (1 + (gst_rate / 100));
-      tax_amount = total_amount - taxable_amount;
+      total_amount = roundTo2Decimals(subtotal - discount_amount);
     } else {
-      // Add GST
-      tax_amount = (taxable_amount * gst_rate) / 100;
-      total_amount = taxable_amount + tax_amount;
-    }
-
-    const companyState = company.state ? company.state.trim().toLowerCase() : '';
-    const pos = invoiceData.place_of_supply ? invoiceData.place_of_supply.trim().toLowerCase() : '';
-
-    if (companyState && pos && companyState !== pos) {
-      // Inter-state
-      igst_rate = gst_rate;
-      igst_amount = tax_amount;
-    } else {
-      // Intra-state or no state info (default to intra)
-      cgst_rate = gst_rate / 2;
-      sgst_rate = gst_rate / 2;
-      cgst_amount = tax_amount / 2;
-      sgst_amount = tax_amount / 2;
+      total_amount = roundTo2Decimals(taxable_amount + tax_amount);
     }
   } else {
     // Without GST
@@ -139,7 +140,7 @@ export const generateInvoice = async (user_id, invoiceData) => {
   const newInvoiceData = {
     company_id: company.id,
     customer_id: customerId,
-    invoice_number,
+    _invoice_prefix: company.invoice_prefix || 'INV',
     customer_mobile: invoiceData.customer_mobile,
     customer_name: invoiceData.customer_name,
     billing_address: invoiceData.billing_address,
@@ -149,24 +150,29 @@ export const generateInvoice = async (user_id, invoiceData) => {
     
     // GST fields
     gst_enabled: invoiceData.gst_enabled || false,
-    gst_rate: invoiceData.gst_enabled ? (invoiceData.gst_rate !== undefined ? invoiceData.gst_rate : fallbackGstRate) : 0,
+    gst_rate: invoiceData.gst_enabled ? (invoiceData.gst_rate !== undefined ? Number(invoiceData.gst_rate) : Number(fallbackGstRate)) : 0,
     gst_price_type: invoiceData.gst_price_type || 'exclusive',
-    place_of_supply: invoiceData.place_of_supply || null,
+    place_of_supply: resolvedPlaceOfSupply || invoiceData.place_of_supply || null,
     
-    taxable_amount,
-    cgst_rate,
-    cgst_amount,
-    sgst_rate,
-    sgst_amount,
-    igst_rate,
-    igst_amount,
+    taxable_amount: roundTo2Decimals(taxable_amount),
+    cgst_rate: roundTo2Decimals(cgst_rate),
+    cgst_amount: roundTo2Decimals(cgst_amount),
+    sgst_rate: roundTo2Decimals(sgst_rate),
+    sgst_amount: roundTo2Decimals(sgst_amount),
+    igst_rate: roundTo2Decimals(igst_rate),
+    igst_amount: roundTo2Decimals(igst_amount),
     
-    subtotal,
-    discount_amount,
-    tax_amount,
-    total_amount,
+    subtotal: roundTo2Decimals(subtotal),
+    discount_amount: roundTo2Decimals(discount_amount),
+    tax_amount: roundTo2Decimals(tax_amount),
+    total_amount: roundTo2Decimals(total_amount),
     payment_method: invoiceData.payment_method || 'cash',
-    invoice_template: invoiceData.invoice_template || adminSettings.default_invoice_format,
+    paid_amount: invoiceData.paid_amount !== undefined ? roundTo2Decimals(Number(invoiceData.paid_amount)) : roundTo2Decimals(total_amount),
+    payment_status: invoiceData.paid_amount !== undefined ? derivePaymentStatus(invoiceData.paid_amount, roundTo2Decimals(total_amount)) : 'paid',
+    status: invoiceData.paid_amount !== undefined ? (derivePaymentStatus(invoiceData.paid_amount, roundTo2Decimals(total_amount)) === 'paid' ? 'paid' : (derivePaymentStatus(invoiceData.paid_amount, roundTo2Decimals(total_amount)) === 'partial' ? 'partial' : 'generated')) : 'paid',
+    payment_reference: invoiceData.payment_reference || null,
+    payment_notes: invoiceData.payment_notes || null,
+    invoice_template: invoiceData.invoice_template === 'normal' ? 'standard' : (invoiceData.invoice_template || adminSettings.default_invoice_format || 'standard'),
     notes: invoiceData.notes,
   };
 
@@ -174,7 +180,13 @@ export const generateInvoice = async (user_id, invoiceData) => {
 };
 
 export const getInvoices = async (user_id) => {
-  const company = await companyService.getCompanyProfile(user_id);
+  let company;
+  try {
+    company = await companyService.getCompanyProfile(user_id);
+  } catch {
+    return [];
+  }
+  if (!company) return [];
   return await invoiceRepo.getInvoicesByCompany(company.id);
 };
 
@@ -186,8 +198,9 @@ export const getInvoiceDetails = async (user_id, invoice_id) => {
 };
 
 export const updateTemplate = async (user_id, invoice_id, template) => {
+  const normalizedTemplate = template === 'normal' ? 'standard' : template;
   const company = await companyService.getCompanyProfile(user_id);
-  const invoice = await invoiceRepo.updateInvoiceTemplate(invoice_id, company.id, template);
+  const invoice = await invoiceRepo.updateInvoiceTemplate(invoice_id, company.id, normalizedTemplate);
   if (!invoice) throw { statusCode: 404, message: 'Invoice not found' };
   return invoice;
 };

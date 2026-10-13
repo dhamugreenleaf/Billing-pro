@@ -1,4 +1,27 @@
-/* Mobile First Layout Wrappers */
+/* =========================================================
+   MOBILE FIRST RESPONSIVE SYSTEM & TOUCH OPTIMIZATIONS
+   Safe Area Insets, Smooth Momentum Scrolling, 44px Touch Targets
+   ========================================================= */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch friendly base elements on mobile */
+@media (max-width: 768px) {
+  button, 
+  a, 
+  input[type="button"], 
+  input[type="submit"] {
+    touch-action: manipulation;
+  }
+
+  input, 
+  select, 
+  textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS */
+  }
+}
 
 /* Standard padding for mobile screens */
 .mobile-wrapper {
@@ -16,8 +39,8 @@
 .form-group label {
   margin-bottom: var(--spacing-xs);
   font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--color-text-main);
+  font-weight: 600;
+  color: var(--color-text-main, #0f172a);
 }
 
 /* Tablet and Up */
@@ -26,6 +49,14 @@
     padding: var(--spacing-xl);
     max-width: 768px;
     margin: 0 auto;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .mobile-wrapper {
+    max-width: 960px;
+    padding: var(--spacing-xl) 0;
   }
 }
 

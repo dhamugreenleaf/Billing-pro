@@ -6,8 +6,10 @@ const phoneSchema = z.string()
   .regex(/^[0-9]+$/, 'Mobile number must contain only digits');
 
 const invoiceItemSchema = z.object({
-  item_name: z.string().optional(),
-  description: z.string().optional(),
+  product_id: z.string().optional().nullable(),
+  product_code: z.string().optional().nullable(),
+  item_name: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   quantity: z.number().min(0.01).optional().default(1),
   unit_price: z.number().min(0),
   discount: z.number().min(0).optional().default(0),
@@ -31,7 +33,10 @@ export const createInvoiceSchema = z.object({
     gst_price_type: z.enum(['exclusive', 'inclusive']).optional().default('exclusive'),
     place_of_supply: z.string().optional(),
     payment_method: z.string().optional().default('cash'),
-    invoice_template: z.string().optional().default('normal'),
+    paid_amount: z.number().min(0).optional(),
+    payment_reference: z.string().optional().nullable(),
+    payment_notes: z.string().optional().nullable(),
+    invoice_template: z.string().optional().default('standard'),
     notes: z.string().optional(),
   })
 });

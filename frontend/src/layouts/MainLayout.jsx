@@ -1,10 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, ReceiptText, FileBarChart2, Settings, User, LogOut, ChevronDown, Crown, Package } from 'lucide-react';
+import { 
+  Home, 
+  ReceiptText, 
+  FileBarChart2, 
+  Settings, 
+  User, 
+  LogOut, 
+  ChevronDown, 
+  Crown, 
+  Package, 
+  Plus, 
+  Receipt, 
+  ShieldCheck, 
+  ChevronRight,
+  Sun,
+  Moon
+} from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../redux/authSlice';
+import { logout, updateUser } from '../redux/authSlice';
 import api from '../utils/api';
 import useSEO from '../utils/useSEO';
+import useTheme from '../utils/useTheme';
+import './MainLayout.css';
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
@@ -13,11 +31,30 @@ const MainLayout = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
 
   useSEO({ noindex: true });
+  const themeContext = useTheme();
+  const theme = themeContext?.theme || 'light';
+  const toggleTheme = themeContext?.toggleTheme || (() => {});
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [companyData, setCompanyData] = useState(null);
   const dropdownRef = useRef(null);
+
+  // Sync user profile & subscription status with backend
+  useEffect(() => {
+    if (user) {
+      api.get('/auth/me').then(res => {
+        if (res.data?.data?.user) {
+          const fetchedUser = res.data.data.user;
+          if (fetchedUser.subscription_status !== user.subscription_status) {
+            dispatch(updateUser(fetchedUser));
+          }
+        }
+      }).catch(err => {
+        // Silently handle if network or endpoint fails
+      });
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     if (user && user.profile_completed) {
@@ -56,7 +93,7 @@ const MainLayout = ({ children }) => {
   const getInitials = () => {
     if (companyData?.company_name) return companyData.company_name.substring(0, 2).toUpperCase();
     if (user?.name) return user.name.substring(0, 2).toUpperCase();
-    return 'US';
+    return 'BP';
   };
 
   const toTitleCase = (str) => {
@@ -64,21 +101,23 @@ const MainLayout = ({ children }) => {
     return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
   };
 
-  const displayName = toTitleCase(user?.name) || 'User Name';
-  const displayCompany = toTitleCase(companyData?.company_name) || 'Business Name';
+  const displayName = toTitleCase(user?.name) || 'User';
+  const displayCompany = toTitleCase(companyData?.company_name) || 'GoBill';
   const displayOwner = toTitleCase(companyData?.owner_name) || displayName;
 
   const navItems = [
-    { path: '/', label: 'Home', icon: <Home size={20} /> },
-    { path: '/bills', label: 'Bills', icon: <ReceiptText size={20} /> },
-    ...(user?.subscription_status === 'paid' ? [{ path: '/products', label: 'Products', icon: <Package size={20} /> }] : []),
-    { path: '/reports', label: 'Reports', icon: <FileBarChart2 size={20} /> },
-    { path: '/plans', label: 'Plans', icon: <Crown size={20} /> },
+    { path: '/', label: 'Home', icon: <Home size={18} /> },
+    { path: '/bills', label: 'Bills', icon: <ReceiptText size={18} /> },
+    ...(user?.subscription_status === 'paid' ? [{ path: '/products', label: 'Products', icon: <Package size={18} /> }] : []),
+    { path: '/reports', label: 'Reports', icon: <FileBarChart2 size={18} /> },
+    { path: '/plans', label: 'Plans', icon: <Crown size={18} /> },
   ];
 
   const isSetupPage = location.pathname === '/setup';
   const isTermsPage = location.pathname === '/terms';
-  const hideHeaderFooter = isSetupPage || isTermsPage;
+  const isInvoiceCreatePage = location.pathname === '/invoice/new';
+  const isInvoicePreviewPage = location.pathname.includes('/invoice/') && location.pathname.includes('/preview');
+  const hideHeaderFooter = isSetupPage || isTermsPage || isInvoiceCreatePage || isInvoicePreviewPage;
 
   // Enforce Terms & Conditions check
   useEffect(() => {
@@ -88,233 +127,242 @@ const MainLayout = ({ children }) => {
   }, [user, isTermsPage, navigate]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--color-bg-main)' }}>
-      {/* Mobile Top Header (hidden on large screens ideally, but keeping it simple) */}
+    <div className="main-layout-root">
+      {/* Top Header */}
       {!hideHeaderFooter && (
-        <header className="no-print" style={{ 
-          backgroundColor: '#ffffff', 
-          padding: '0.75rem 1.5rem',
-          borderBottom: '1px solid #e2e8f0',
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-        }}>
-          <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ color: '#1e3a8a', margin: 0, fontSize: '1.25rem', fontWeight: '700' }}>Billing Pro</h2>
-            
-            <div className="header-profile" ref={dropdownRef} style={{ position: 'relative' }}>
-              <button 
-                onClick={() => setProfileOpen(!profileOpen)}
-                aria-expanded={profileOpen}
-                aria-haspopup="true"
-                aria-label="User profile menu"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  borderRadius: '2rem',
-                  transition: 'background-color 0.2s',
-                }}
-                className="profile-btn-hover"
+        <header className="main-header no-print">
+          <div className="container main-header-inner">
+            {/* Brand Logo & Name */}
+            <Link to="/" className="main-brand-link" aria-label="GoBill Home">
+              <div className="main-brand-logo-icon">
+                <Receipt size={22} />
+              </div>
+              <div className="main-brand-text-wrap">
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <h1 className="main-brand-title">GoBill</h1>
+                  <span className="main-brand-badge">PRO</span>
+                </div>
+                <span className="main-brand-tagline">GST POS & Invoicing</span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="main-desktop-nav" aria-label="Main Navigation">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`main-nav-pill ${isActive ? 'active' : ''}`}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Header Right Actions */}
+            <div className="main-header-actions">
+              {/* Theme Toggle Button */}
+              <button
+                type="button"
+                className="main-theme-toggle-btn"
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle Theme"
               >
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  backgroundColor: '#eff6ff',
-                  color: '#1d4ed8',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                  border: '1px solid #bfdbfe'
-                }}>
-                  {getInitials()}
-                </div>
-                <div className="profile-text-desktop" style={{ display: 'none', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: '500', color: '#1e293b' }}>{displayCompany}</span>
-                  <ChevronDown size={16} color="#64748b" />
-                </div>
+                {theme === 'dark' ? <Sun size={18} color="#fbbf24" strokeWidth={2.4} /> : <Moon size={18} color="#ffffff" strokeWidth={2.4} />}
               </button>
 
-              {profileOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 0.5rem)',
-                  right: 0,
-                  width: '260px',
-                  backgroundColor: '#ffffff',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                  border: '1px solid #e2e8f0',
-                  overflow: 'hidden',
-                  zIndex: 50
-                }}>
-                  <div style={{ padding: '1rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      backgroundColor: '#eff6ff',
-                      color: '#1d4ed8',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: '600',
-                      fontSize: '1rem',
-                      border: '1px solid #bfdbfe',
-                      flexShrink: 0
-                    }}>
-                      {getInitials()}
+
+              {/* Profile Menu Trigger */}
+              <div className="header-profile" ref={dropdownRef} style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  aria-expanded={profileOpen}
+                  aria-haspopup="true"
+                  aria-label="User profile menu"
+                  className="main-profile-trigger"
+                >
+                  <div className="main-profile-avatar">
+                    {getInitials()}
+                  </div>
+                  <div className="main-profile-text-wrap">
+                    <span className="main-profile-company">{displayCompany}</span>
+                    <span className="main-profile-owner">{displayOwner}</span>
+                  </div>
+                  <ChevronDown size={15} color="rgba(255, 255, 255, 0.9)" style={{ marginLeft: '2px' }} />
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {profileOpen && (
+                  <div className="main-profile-dropdown" role="menu">
+                    <div className="main-dropdown-header">
+                      <div className="main-profile-avatar" style={{ width: '42px', height: '42px', fontSize: '1rem' }}>
+                        {getInitials()}
+                      </div>
+                      <div className="main-dropdown-header-info">
+                        <div className="main-dropdown-company-name">{displayCompany}</div>
+                        <div className="main-dropdown-owner-name">{displayOwner}</div>
+                        <div className="main-dropdown-status">
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#10b981' }} />
+                          <span>Active Account</span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ overflow: 'hidden' }}>
-                      <div style={{ fontWeight: '600', color: '#0f172a', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayCompany}</div>
-                      <div style={{ color: '#475569', fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayOwner}</div>
+
+                    <div className="main-dropdown-menu-list">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="main-dropdown-item"
+                        onClick={() => { setProfileOpen(false); navigate('/setup'); }}
+                      >
+                        <span className="main-dropdown-item-left">
+                          <User size={16} color="#475569" />
+                          <span>Business Profile</span>
+                        </span>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </button>
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="main-dropdown-item"
+                        onClick={() => { setProfileOpen(false); navigate('/settings'); }}
+                      >
+                        <span className="main-dropdown-item-left">
+                          <Settings size={16} color="#475569" />
+                          <span>Settings & GST</span>
+                        </span>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </button>
+
+                      <div className="main-dropdown-divider" />
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="main-dropdown-item danger"
+                        onClick={() => { setProfileOpen(false); setShowLogoutDialog(true); }}
+                      >
+                        <span className="main-dropdown-item-left">
+                          <LogOut size={16} />
+                          <span>Logout</span>
+                        </span>
+                      </button>
                     </div>
                   </div>
-                  <div style={{ padding: '0.5rem' }}>
-                    <button onClick={() => { setProfileOpen(false); navigate('/setup'); }} style={dropdownItemStyle}>
-                      <User size={16} /> Profile Settings &rarr;
-                    </button>
-                    <button onClick={() => { setProfileOpen(false); navigate('/settings'); }} style={dropdownItemStyle}>
-                      <Settings size={16} /> Account Settings &rarr;
-                    </button>
-                  </div>
-                  <div style={{ padding: '0.5rem', borderTop: '1px solid #f1f5f9' }}>
-                    <button 
-                      onClick={() => { setProfileOpen(false); setShowLogoutDialog(true); }} 
-                      style={{ ...dropdownItemStyle, color: '#dc2626' }}
-                    >
-                      <LogOut size={16} /> Logout
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </header>
       )}
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, paddingBottom: '80px' }}>
+      <main className="main-content-body">
         {children || <Outlet />}
       </main>
 
-      {/* Bottom Navigation for Mobile */}
+      {/* Mobile Bottom Navigation Dock */}
       {!hideHeaderFooter && (
-        <nav className="no-print" style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: 'var(--color-bg-card)',
-          borderTop: '1px solid var(--color-border)',
-          display: 'flex',
-          justifyContent: 'space-around',
-          padding: 'var(--spacing-sm) 0',
-          zIndex: 10
-        }}>
-          {navItems.map(item => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link 
-                key={item.path} 
-                to={item.path}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                  textDecoration: 'none',
-                  fontSize: 'var(--font-size-xs)',
-                  fontWeight: isActive ? '600' : '400'
-                }}
-              >
-                <div style={{ marginBottom: '4px' }}>{item.icon}</div>
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="main-mobile-nav no-print" aria-label="Mobile Bottom Navigation">
+          <Link
+            to="/"
+            className={`main-mobile-nav-item ${location.pathname === '/' ? 'active' : ''}`}
+          >
+            <div className="main-mobile-nav-icon"><Home size={19} /></div>
+            <span>Home</span>
+          </Link>
+
+          <Link
+            to="/bills"
+            className={`main-mobile-nav-item ${location.pathname === '/bills' ? 'active' : ''}`}
+          >
+            <div className="main-mobile-nav-icon"><ReceiptText size={19} /></div>
+            <span>Bills</span>
+          </Link>
+
+          {/* Elevated Center Quick Invoice Action Button */}
+          <button
+            type="button"
+            className="main-mobile-nav-fab"
+            onClick={() => navigate('/invoice/new')}
+            title="Create New Invoice"
+            aria-label="New Bill"
+          >
+            <Plus size={24} strokeWidth={2.8} />
+          </button>
+
+          {user?.subscription_status === 'paid' ? (
+            <Link
+              to="/products"
+              className={`main-mobile-nav-item ${location.pathname === '/products' ? 'active' : ''}`}
+            >
+              <div className="main-mobile-nav-icon"><Package size={19} /></div>
+              <span>Products</span>
+            </Link>
+          ) : (
+            <Link
+              to="/reports"
+              className={`main-mobile-nav-item ${location.pathname === '/reports' ? 'active' : ''}`}
+            >
+              <div className="main-mobile-nav-icon"><FileBarChart2 size={19} /></div>
+              <span>Reports</span>
+            </Link>
+          )}
+
+          <Link
+            to="/plans"
+            className={`main-mobile-nav-item ${location.pathname === '/plans' ? 'active' : ''}`}
+          >
+            <div className="main-mobile-nav-icon"><Crown size={19} /></div>
+            <span>Plans</span>
+          </Link>
         </nav>
       )}
 
+      {/* Logout Confirmation Dialog */}
       {showLogoutDialog && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100
-        }}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            padding: '1.5rem',
-            width: '90%',
-            maxWidth: '400px',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h3 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>Logout?</h3>
-            <p style={{ color: '#475569', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-              Are you sure you want to logout from Billing Pro?
+        <div className="main-modal-overlay" onClick={() => setShowLogoutDialog(false)}>
+          <div className="main-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="main-modal-header">
+              <div className="main-modal-icon-wrap">
+                <LogOut size={22} />
+              </div>
+              <div>
+                <h3 className="main-modal-title">Sign Out?</h3>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Confirm session termination</span>
+              </div>
+            </div>
+            <p className="main-modal-desc">
+              Are you sure you want to log out from <strong>GoBill</strong>? You can sign back in anytime with your registered credentials.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-              <button 
+            <div className="main-modal-actions">
+              <button
+                type="button"
+                className="main-modal-btn-cancel"
                 onClick={() => setShowLogoutDialog(false)}
-                style={{ padding: '0.5rem 1rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', color: '#475569', cursor: 'pointer', fontWeight: '500' }}
               >
                 Cancel
               </button>
-              <button 
+              <button
+                type="button"
+                className="main-modal-btn-danger"
                 onClick={handleLogoutConfirm}
-                style={{ padding: '0.5rem 1rem', background: '#dc2626', border: '1px solid #dc2626', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontWeight: '500' }}
               >
-                Logout
+                Logout Now
               </button>
             </div>
           </div>
         </div>
       )}
-
-      <style>{`
-        @media (min-width: 768px) {
-          .profile-text-desktop {
-            display: flex !important;
-          }
-        }
-        .profile-btn-hover:hover {
-          background-color: #f8fafc !important;
-        }
-      `}</style>
     </div>
   );
-};
-
-const dropdownItemStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.75rem',
-  width: '100%',
-  padding: '0.5rem',
-  border: 'none',
-  background: 'transparent',
-  textAlign: 'left',
-  cursor: 'pointer',
-  color: '#334155',
-  fontSize: '0.9rem',
-  borderRadius: '6px',
-  transition: 'background-color 0.2s'
 };
 
 export default MainLayout;

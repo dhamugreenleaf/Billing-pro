@@ -123,9 +123,21 @@ const Invoice = sequelize.define('Invoice', {
     type: DataTypes.STRING,
     defaultValue: 'cash',
   },
+  // Payment tracking fields
+  paid_amount: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0,
+    allowNull: false,
+  },
+  payment_status: {
+    // 'unpaid' | 'partial' | 'paid'
+    type: DataTypes.STRING,
+    defaultValue: 'unpaid',
+    allowNull: false,
+  },
   invoice_template: {
     type: DataTypes.STRING,
-    defaultValue: 'normal',
+    defaultValue: 'standard',
   },
   status: {
     type: DataTypes.STRING,
@@ -140,6 +152,13 @@ const Invoice = sequelize.define('Invoice', {
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
+  indexes: [
+    {
+      unique: true,
+      fields: ['company_id', 'invoice_number'],
+      name: 'invoices_company_invoice_number_unique'
+    }
+  ]
 });
 
 Company.hasMany(Invoice, { foreignKey: 'company_id' });

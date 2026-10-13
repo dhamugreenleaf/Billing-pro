@@ -17,7 +17,7 @@ const Settings = () => {
     },
     {
       title: 'TERMS & CONDITIONS',
-      description: 'Read the terms and conditions for using Billing Pro.',
+      description: 'Read the terms and conditions for using GoBill.',
       icon: <FileText size={24} />, 
       path: '/settings/terms'
     },
@@ -30,7 +30,7 @@ const Settings = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', paddingBottom: 'calc(var(--spacing-2xl) + 80px)' }}>
+    <div style={{ backgroundColor: 'var(--color-bg-main, #f8fafc)', minHeight: '100vh', paddingBottom: 'calc(var(--spacing-2xl) + 80px)' }}>
       <style>{`
         .settings-container {
           max-width: 800px;
@@ -43,12 +43,12 @@ const Settings = () => {
         .settings-title {
           font-size: 1.75rem;
           font-weight: 700;
-          color: #0f172a;
+          color: var(--color-text-main, #0f172a);
           margin: 0 0 var(--spacing-xs) 0;
           letter-spacing: -0.025em;
         }
         .settings-subtitle {
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           font-size: 0.95rem;
           margin: 0;
         }
@@ -58,21 +58,22 @@ const Settings = () => {
           margin-bottom: 2rem;
         }
         .settings-card-item {
-          background: #ffffff;
+          background: var(--color-bg-card, #ffffff);
           border-radius: 12px;
-          border: 1px solid #e2e8f0;
+          border: 1px solid var(--color-border, #e2e8f0);
           padding: 1.5rem;
           display: flex;
           align-items: center;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+          box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.02));
+          color: var(--color-text-main);
         }
         .settings-card-item:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
+          background: var(--color-bg-card-hover, #f8fafc);
+          border-color: var(--color-primary, #cbd5e1);
           transform: translateY(-1px);
-          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+          box-shadow: var(--shadow-md, 0 4px 6px -1px rgba(0,0,0,0.05));
         }
         .setting-icon-wrapper {
           display: flex;
@@ -83,8 +84,8 @@ const Settings = () => {
           border-radius: 10px;
           margin-right: 1.25rem;
           flex-shrink: 0;
-          background: #eff6ff;
-          color: #2563eb;
+          background: var(--color-primary-light, #eff6ff);
+          color: var(--color-primary, #2563eb);
         }
         .setting-content {
           flex: 1;
@@ -93,23 +94,23 @@ const Settings = () => {
         }
         .setting-label {
           font-weight: 600;
-          color: #0f172a;
+          color: var(--color-text-main, #0f172a);
           font-size: 1.05rem;
           margin-bottom: 4px;
         }
         .setting-desc {
-          color: #64748b;
+          color: var(--color-text-muted, #64748b);
           font-size: 0.875rem;
           line-height: 1.4;
         }
         .setting-arrow {
-          color: #cbd5e1;
+          color: var(--color-text-muted, #cbd5e1);
           transition: transform 0.2s ease, color 0.2s ease;
           margin-left: 1rem;
         }
         .settings-card-item:hover .setting-arrow {
           transform: translateX(4px);
-          color: #94a3b8;
+          color: var(--color-primary, #94a3b8);
         }
         
         .logout-btn-wrapper {
@@ -117,7 +118,7 @@ const Settings = () => {
           justify-content: flex-start;
           margin-top: 2rem;
           padding-top: 2rem;
-          border-top: 1px solid #e2e8f0;
+          border-top: 1px solid var(--color-border, #e2e8f0);
         }
         .logout-btn {
           display: flex;

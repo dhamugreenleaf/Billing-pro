@@ -5,7 +5,14 @@ export const findSettingsByCompanyId = async (company_id) => {
 };
 
 export const createSettings = async (settingsData) => {
-  return await Settings.create(settingsData);
+  try {
+    return await Settings.create(settingsData);
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError' && settingsData.company_id) {
+      return await findSettingsByCompanyId(settingsData.company_id);
+    }
+    throw err;
+  }
 };
 
 export const updateSettings = async (company_id, settingsData) => {
